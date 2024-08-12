@@ -30,3 +30,21 @@
 *.exe
 *.out
 *.app
+
+# ide
+.idea
+
+# build
+build/
+cmake-build-release/
+
+# dependencies
+/dependencies/assimp/*
+dependencies/boost/*
+dependencies/glad/*
+dependencies/glfw/*
+dependencies/glm/*
+
+#resources
+resources/models
+dependencies/assimp/include/assimp/config.h
