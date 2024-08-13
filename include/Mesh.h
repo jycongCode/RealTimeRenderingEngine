@@ -12,6 +12,7 @@ struct Vertex{
     glm::vec2 TexCoord;
     glm::vec3 Tangent;
 };
+
 class Mesh{
 public :
     std::vector<Vertex> vertices;
@@ -23,6 +24,11 @@ public :
         this->textures = textures;
         setupMesh();
     }
+
+    ~Mesh() {
+        Destroy();
+    }
+
     void Destroy();
 private:
     unsigned int VAO,VBO,EBO;

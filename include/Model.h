@@ -5,11 +5,13 @@
 #pragma once
 #include "Mesh.h"
 #include <vector>
+#include <unordered_map>
+
 class Model{
 private:
-    std::vector<Texture> textures_loaded;
+    std::unordered_map<std::string,Texture> textures_loaded;
 public:
-    Model(char* path){
+    Model(const char* path){
         loadModel(path);
     }
 
@@ -21,6 +23,5 @@ private:
 
     Mesh processMesh(aiMesh *mesh, const aiScene *scene);
     void processNode(aiNode *node, const aiScene* scene);
-
-    std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,std::string typeName);
+    std::vector<Texture> processMaterial(aiMaterial* material,const aiScene* scene);
 };

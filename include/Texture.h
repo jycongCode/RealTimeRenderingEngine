@@ -9,6 +9,6 @@ class Texture {
 public:
     void LoadFromFile(const char* filePath, bool sRGB);
     unsigned int id;
-    std::string type;
+    unsigned int type;
     aiString path;
 };

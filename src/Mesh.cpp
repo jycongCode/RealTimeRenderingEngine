@@ -4,6 +4,13 @@
 
 #include "Mesh.h"
 #include <glad/glad.h>
+
+void Mesh::Destroy() {
+    glDeleteVertexArrays(1,&VAO);
+    glDeleteBuffers(1,&VBO);
+    glDeleteBuffers(1,&EBO);
+}
+
 void Mesh::setupMesh() {
     //Generate Buffers
     glGenVertexArrays(1, &VAO);

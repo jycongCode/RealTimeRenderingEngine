@@ -12,7 +12,6 @@ void Texture::LoadFromFile(const char *filePath, bool sRGB) {
     glGenTextures(1,&id);
     glBindTexture(GL_TEXTURE_2D,id);
     unsigned char* data = stbi_load(filePath,&width,&height,&nChannels,0);
-
     if(data){
         GLenum dataFormat;
         GLenum internalFormat;

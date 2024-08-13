@@ -5,11 +5,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <assimp/Importer.hpp>
-
+#include "Model.h"
+#include "Shader.h"
+#include "Texture.h"
 int main(void)
 {
-    Assimp::Importer importer;
     GLFWwindow* window;
 
     /* Initialize the library */
@@ -33,6 +33,10 @@ int main(void)
         return -1;
     }
 
+
+    Model testModel("../resources/models/Marry/Marry.obj");
+    Shader BlinnPhongShader("../resources/shaders/BlinnPhong.vert","../resources/shaders/BlinnPhong.frag");
+    
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
@@ -44,7 +48,8 @@ int main(void)
         /* Poll for and process events */
         glfwPollEvents();
     }
-
+    testModel.Destroy();
+    BlinnPhongShader.Destroy();
     glfwTerminate();
     return 0;
 }
