@@ -8,6 +8,9 @@
 #include "Model.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
 int main(void)
 {
     GLFWwindow* window;
@@ -36,18 +39,18 @@ int main(void)
 
     Model testModel("../resources/models/Marry/Marry.obj");
     Shader BlinnPhongShader("../resources/shaders/BlinnPhong.vert","../resources/shaders/BlinnPhong.frag");
-    
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
+    Camera testCamera;
+    // while (!glfwWindowShouldClose(window))
+    // {
+    //     /* Render here */
+    //     glClear(GL_COLOR_BUFFER_BIT);
+    //
+    //     /* Swap front and back buffers */
+    //     glfwSwapBuffers(window);
+    //
+    //     /* Poll for and process events */
+    //     glfwPollEvents();
+    // }
     testModel.Destroy();
     BlinnPhongShader.Destroy();
     glfwTerminate();
