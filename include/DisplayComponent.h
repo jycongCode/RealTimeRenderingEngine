@@ -2,8 +2,10 @@
 // Created by Lenovo on 2024/8/13.
 //
 
-#pragma once
+#ifndef _DISPLAY_COMPONENT
+#define _DISPLAY_COMPONENT
 #include <GLFW/glfw3.h>
+#include <WindowCallback.h>
 class DisplayComponent {
 private:
     float deltaTime = 0.0f;
@@ -15,10 +17,12 @@ private:
     }
 public:
     GLFWwindow* window;
+    void setup();
+    void update(float deltaTime);
+    void destroy();
+    void setCallBacks(WindowCallback callbacks);
+public:
     const unsigned int ScrWidth = 640;
     const unsigned int ScrHeight = 480;
-    void CreateWindow();
-    void CreateContext();
-    void update();
-    void Destroy();
 };
+#endif
