@@ -6,6 +6,9 @@
 #include <glad/glad.h>
 #include "DisplayComponent.h"
 #include "WindowCallback.h"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             GLuint id,
@@ -55,7 +58,6 @@ void APIENTRY glDebugOutput(GLenum source,
 
 void DisplayComponent::setup() {
     glfwInit();
-
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -71,6 +73,8 @@ void DisplayComponent::setup() {
     }
 
     glfwMakeContextCurrent(window);
+    // 垂直同步
+    glfwSwapInterval(1);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -85,13 +89,21 @@ void DisplayComponent::setup() {
     glViewport(0,0,ScrWidth,ScrHeight);
     glEnable              ( GL_DEBUG_OUTPUT );
     glDebugMessageCallback(glDebugOutput, 0 );
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
 }
 
 void DisplayComponent::update(float deltaTime) {
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);
-    glfwPollEvents();
     glClearColor(0.2f,0.4f,0.2f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+}
+
+bool show_demo_window = true;
+bool show_another_window = false;
+void DisplayComponent::renderGui() {
 }
 
 void DisplayComponent::destroy() {
@@ -103,5 +115,6 @@ void DisplayComponent::setCallBacks(WindowCallback callbacks) {
     glfwSetFramebufferSizeCallback(window, callbacks.framebuffer_size_callback);
     glfwSetCursorPosCallback(window,callbacks.mouse_pos_callback);
     glfwSetScrollCallback(window,callbacks.mouse_scroll_callback);
+    glfwSetMouseButtonCallback(window,callbacks.mouse_button_callback);
 }
 

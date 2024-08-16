@@ -8,6 +8,7 @@
 struct WindowCallback{
     GLFWframebuffersizefun framebuffer_size_callback;
     GLFWcursorposfun mouse_pos_callback;
+    GLFWmousebuttonfun mouse_button_callback;
     GLFWscrollfun  mouse_scroll_callback;
 };
 #endif //WINDOWCALLBACK_H

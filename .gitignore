@@ -44,6 +44,8 @@ dependencies/boost/*
 dependencies/glad/*
 dependencies/glfw/*
 dependencies/glm/*
+dependencies/imgui/*
+dependencies/imgui_src
 
 #resources
 resources/models

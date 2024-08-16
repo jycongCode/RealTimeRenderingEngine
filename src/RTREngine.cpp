@@ -4,6 +4,7 @@
 
 #include "RTREngine.h"
 #include <iostream>
+#include <imgui_impl_glfw.h>
 void RTREngine::updateTime() {
     float currentTime = glfwGetTime();
     deltaTime = currentTime - lastFrame;
@@ -21,11 +22,24 @@ void RTREngine::run() {
     bool flag = true;
     while(!inputComponent.done) {
         updateTime();
+        if (glfwGetWindowAttrib(displayComponent.window, GLFW_ICONIFIED) != 0)
+        {
+            ImGui_ImplGlfw_Sleep(10);
+            continue;
+        }
+        inputComponent.update(deltaTime);
         sceneComponent.update(deltaTime);
         renderComponent.update(deltaTime);
         displayComponent.update(deltaTime);
-        inputComponent.update(deltaTime);
         flag = false;
+
+        /*
+         * update time
+         * scene update --> blank
+         * render update --> render draw call
+         * display update --> clear color
+         * input poll events
+         */
     }
     sceneComponent.destroy();
     inputComponent.destroy();

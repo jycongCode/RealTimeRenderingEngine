@@ -19,6 +19,10 @@ public:
     GLFWwindow* window;
     void setup();
     void update(float deltaTime);
+    void renderGui();
+    // render
+    // clear color
+    // swap buffer
     void destroy();
     void setCallBacks(WindowCallback callbacks);
 public:

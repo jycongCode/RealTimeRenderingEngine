@@ -9,11 +9,17 @@
 class InputComponent {
 private:
     GLFWwindow* window = nullptr;
+    SceneComponent* sceneComponent = nullptr;
+    WindowCallback windowCallback;
+private:
+    void param_init();
+    void param_update();
 public:
     bool done = false;
     static void mouse_pos_callback(GLFWwindow* window,double xpos,double ypos);
     static void mouse_scroll_callback(GLFWwindow* window,double xoffset,double yoffset);
     static void framebuffer_size_callback(GLFWwindow* window,int width,int height);
+    static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
     void setup(DisplayComponent& display,SceneComponent& scene);
     void update(float deltaTime);
     void destroy();
