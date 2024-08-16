@@ -8,14 +8,23 @@
 #include <assimp/postprocess.h>
 #include <iostream>
 #include <glad/glad.h>
-void Model::Destroy() {
+void Model::destroy() {
+    for(auto mesh : meshes) {
+        mesh.destroy();
+    }
+}
+
+void Model::draw(Shader shader) {
+    for(int i = 0;i<meshes.size();++i) {
+        meshes[i].draw(shader);
+    }
 }
 
 void Model::loadModel(std::string filePath){
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(filePath,aiProcess_Triangulate|aiProcess_FlipUVs|aiProcess_CalcTangentSpace);
     if(!scene||scene->mFlags&AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode){
-        std::cout << "ERROR::ASSIMP::"<<importer.GetErrorString() << std::endl;
+        std::cout << "ERROR::ASSIMP::[" << filePath << "]" <<importer.GetErrorString() << std::endl;
     }
     directory = filePath.substr(0,filePath.find_last_of('/'));
     directory += "/";
@@ -78,7 +87,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     }
 
     textures = processMaterial(scene->mMaterials[mesh->mMaterialIndex],scene);
-    return {vertices,indices,textures};
+    return Mesh(vertices,indices,textures);
 }
 
 std::vector<Texture> Model::processMaterial(aiMaterial *material, const aiScene *scene) {

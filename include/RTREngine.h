@@ -8,15 +8,18 @@
 #include "SceneComponent.h"
 #include "InputComponent.h"
 #include "DisplayComponent.h"
+#include "RenderComponent.h"
+
 class RTREngine {
 private:
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
     void updateTime();
-private:
+public:
     DisplayComponent displayComponent;
     SceneComponent sceneComponent;
     InputComponent inputComponent;
+    RenderComponent renderComponent;
 public:
     void setup();
     void run();

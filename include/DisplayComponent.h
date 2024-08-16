@@ -22,7 +22,7 @@ public:
     void destroy();
     void setCallBacks(WindowCallback callbacks);
 public:
-    const unsigned int ScrWidth = 640;
-    const unsigned int ScrHeight = 480;
+    const unsigned int ScrWidth = 1920;
+    const unsigned int ScrHeight = 1080;
 };
 #endif

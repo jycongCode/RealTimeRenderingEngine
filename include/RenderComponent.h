@@ -6,10 +6,15 @@
 #define RENDERCOMPONENT_H
 
 
-
+#include "SceneComponent.h"
 class RenderComponent {
 public:
-    void setup();
+    std::unordered_map<std::string,Shader> shaderMap;
+private:
+    SceneComponent* sceneComponent = nullptr;
+public:
+    void addShader(const char* shaderName,const char* vsPath,const char* fsPath);
+    void setup(SceneComponent& scene);
     void update(float deltaTime);
     void destroy();
 };

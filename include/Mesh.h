@@ -5,6 +5,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <vector>
+#include "Shader.h"
 #include "Texture.h"
 struct Vertex{
     glm::vec3 Position;
@@ -24,13 +25,13 @@ public :
         this->textures = textures;
         setupMesh();
     }
+    Mesh(){}
 
-    ~Mesh() {
-        Destroy();
-    }
-
-    void Destroy();
-private:
-    unsigned int VAO,VBO,EBO;
+    void draw(Shader shader);
+    void destroy();
+public:
+    GLuint VAO = 0;
+    GLuint VBO = 0;
+    GLuint EBO = 0;
     void setupMesh();
 };

@@ -13,12 +13,10 @@ in VS_OUT{
 } fs_in;
 
 uniform sampler2D diffuse1;
-
+uniform vec3 lightColor;
 void main(){
-    vec3 lightColor = vec3(0.8,0.6,0.5);
-
     vec3 albedo = texture(diffuse1,fs_in.texCoord).rgb;
-    vec3 ambient = albedo * 0.3;
+    vec3 ambient = albedo * 0.5;
 
     vec3 normal = vec3(0.0,0.0,1.0);
     vec3 lightDir = normalize(-fs_in.dirLight_tS);
@@ -28,7 +26,7 @@ void main(){
 
     float diffuse = max(dot(lightDir,normal),0.0);
 
-    vec3 color = ambient + (diffuse+specular) * lightColor;
+    vec3 color = ambient + (diffuse+specular) * lightColor * 0.5;
 
     FragColor = vec4(color,1.0);
 }

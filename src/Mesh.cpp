@@ -5,7 +5,21 @@
 #include "Mesh.h"
 #include <glad/glad.h>
 
-void Mesh::Destroy() {
+void Mesh::draw(Shader shader) {
+    int idx = 0;
+    for(auto texture : textures) {
+        if(texture.type == static_cast<unsigned int>(aiTextureType_DIFFUSE)) {
+            shader.setInt("diffuse1",idx);
+            glActiveTexture(GL_TEXTURE0+idx);
+            glBindTexture(GL_TEXTURE_2D,texture.id);
+            ++idx;
+        }
+    }
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES,indices.size(),GL_UNSIGNED_INT,0);
+}
+
+void Mesh::destroy() {
     glDeleteVertexArrays(1,&VAO);
     glDeleteBuffers(1,&VBO);
     glDeleteBuffers(1,&EBO);

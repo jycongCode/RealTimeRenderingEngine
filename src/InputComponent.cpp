@@ -65,6 +65,12 @@ void InputComponent::update(float deltaTime) {
     if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS) {
         camera->ProcessKeyboard(Camera_Movement::BACKWARD,deltaTime);
     }
+    if(glfwGetKey(window,GLFW_KEY_Q) == GLFW_PRESS) {
+        camera->ProcessKeyboard(Camera_Movement::LIFT,deltaTime);
+    }
+    if(glfwGetKey(window,GLFW_KEY_E) == GLFW_PRESS) {
+        camera->ProcessKeyboard(Camera_Movement::DROP,deltaTime);
+    }
 }
 
 void InputComponent::destroy() {
