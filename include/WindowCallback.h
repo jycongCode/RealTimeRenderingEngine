@@ -6,9 +6,9 @@
 #define WINDOWCALLBACK_H
 #include <GLFW/glfw3.h>
 struct WindowCallback{
-    GLFWframebuffersizefun framebuffer_size_callback;
-    GLFWcursorposfun mouse_pos_callback;
-    GLFWmousebuttonfun mouse_button_callback;
-    GLFWscrollfun  mouse_scroll_callback;
+    GLFWframebuffersizefun framebuffer_size_callback = nullptr;
+    GLFWcursorposfun mouse_pos_callback = nullptr;
+    GLFWmousebuttonfun mouse_button_callback = nullptr;
+    GLFWscrollfun  mouse_scroll_callback = nullptr;
 };
 #endif //WINDOWCALLBACK_H

@@ -5,6 +5,8 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <vector>
+
+#include "Drawable.h"
 #include "Shader.h"
 #include "Texture.h"
 struct Vertex{
@@ -14,7 +16,7 @@ struct Vertex{
     glm::vec3 Tangent;
 };
 
-class Mesh{
+class Mesh:Drawable{
 public :
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
@@ -25,10 +27,9 @@ public :
         this->textures = textures;
         setupMesh();
     }
-    Mesh(){}
-
-    void draw(Shader shader);
-    void destroy();
+    Mesh() = default;
+    void draw(Shader shader) override;
+    void destroy() override;
 public:
     GLuint VAO = 0;
     GLuint VBO = 0;

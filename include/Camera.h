@@ -15,8 +15,8 @@ enum Camera_Movement {
     LIFT,
     DROP
 };
-const float INITIAL_YAW         = -90.0f;
-const float INITIAL_PITCH       =  0.0f;
+const float INITIAL_YAW         = -118.0f;
+const float INITIAL_PITCH       =  -22.0f;
 const float INITIAL_SPEED       =  2.5f;
 const float INITIAL_SENSITIVITY =  0.1f;
 const float INITIAL_ZOOM        =  45.0f;
@@ -38,7 +38,7 @@ public:
     float farPlane = 100.0f;
 
 public:
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+    Camera(glm::vec3 position = glm::vec3(1.9f, 3.3f, 2.5f),
             glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
             glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
             float yaw = INITIAL_YAW, float pitch = INITIAL_PITCH) :

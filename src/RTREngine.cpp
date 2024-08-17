@@ -44,7 +44,9 @@ void RTREngine::run() {
     sceneComponent.destroy();
     inputComponent.destroy();
     displayComponent.destroy();
+    renderComponent.destroy();
 }
 
 void RTREngine::terminate() {
+
 }

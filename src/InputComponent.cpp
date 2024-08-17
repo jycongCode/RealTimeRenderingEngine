@@ -13,20 +13,6 @@ Camera* camera = nullptr;
 bool isEditMode = false;
 
 // edit parameters
-ImVec4 dirLightColor;
-
-void InputComponent::param_init() {
-    glm::vec3 pdirLightColor = sceneComponent->dirLight.lightColor;
-    dirLightColor.x = pdirLightColor.x;
-    dirLightColor.y = pdirLightColor.y;
-    dirLightColor.z = pdirLightColor.z;
-    dirLightColor.w = 1.0f;
-}
-
-void InputComponent::param_update() {
-    glm::vec3 lightColor(dirLightColor.x,dirLightColor.y,dirLightColor.z);
-    sceneComponent->dirLight.lightColor = lightColor;
-}
 
 
 void InputComponent::mouse_pos_callback(GLFWwindow *window, double xpos, double ypos) {
@@ -81,66 +67,78 @@ void InputComponent::setup(DisplayComponent &display,SceneComponent& scene) {
     ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
     ImGui::StyleColorsDark();
-    param_init();
 }
+
+// parameters
 
 bool activateMouseRotate = false;
 void InputComponent::update(float deltaTime) {
     glfwPollEvents();
-    if(window == nullptr) {
-        std::cout << "InputComponent::update() called before setup()" << std::endl;
-        return;
+    {
+        if(window == nullptr) {
+            std::cout << "InputComponent::update() called before setup()" << std::endl;
+            return;
+        }
+        if(glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            done = true;
+        }
+        if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS) {
+            camera->ProcessKeyboard(Camera_Movement::FORWARD,deltaTime);
+        }
+        if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS) {
+            camera->ProcessKeyboard(Camera_Movement::RIGHT,deltaTime);
+        }
+        if(glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS) {
+            camera->ProcessKeyboard(Camera_Movement::LEFT,deltaTime);
+        }
+        if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS) {
+            camera->ProcessKeyboard(Camera_Movement::BACKWARD,deltaTime);
+        }
+        if(glfwGetKey(window,GLFW_KEY_Q) == GLFW_PRESS) {
+            camera->ProcessKeyboard(Camera_Movement::LIFT,deltaTime);
+        }
+        if(glfwGetKey(window,GLFW_KEY_E) == GLFW_PRESS) {
+            camera->ProcessKeyboard(Camera_Movement::DROP,deltaTime);
+        }
     }
-    if(glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-       done = true;
-    }
-    if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS) {
-        camera->ProcessKeyboard(Camera_Movement::FORWARD,deltaTime);
-    }
-    if(glfwGetKey(window,GLFW_KEY_D) == GLFW_PRESS) {
-        camera->ProcessKeyboard(Camera_Movement::RIGHT,deltaTime);
-    }
-    if(glfwGetKey(window,GLFW_KEY_A) == GLFW_PRESS) {
-        camera->ProcessKeyboard(Camera_Movement::LEFT,deltaTime);
-    }
-    if(glfwGetKey(window,GLFW_KEY_S) == GLFW_PRESS) {
-        camera->ProcessKeyboard(Camera_Movement::BACKWARD,deltaTime);
-    }
-    if(glfwGetKey(window,GLFW_KEY_Q) == GLFW_PRESS) {
-        camera->ProcessKeyboard(Camera_Movement::LIFT,deltaTime);
-    }
-    if(glfwGetKey(window,GLFW_KEY_E) == GLFW_PRESS) {
-        camera->ProcessKeyboard(Camera_Movement::DROP,deltaTime);
-    }
-
     // imgui input
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     {
-        float windowWidth = 60.0f; // 窗口宽度
-        float windowHeight = 80.0f; // 窗口高度
-        float xPos = ImGui::GetIO().DisplaySize.x - windowWidth - 50.0f; // 窗口的x位置，大致在屏幕右侧
-        float yPos = 50.0f; // 窗口的y位置，这里是一个固定的值，但你可能需要根据你的UI布局进行调整
+        float windowWidth = 60.0f;
+        float windowHeight = 80.0f;
+        float xPos = ImGui::GetIO().DisplaySize.x - windowWidth - 50.0f;
+        float yPos = 50.0f;
 
-        // 注意：ImGui没有直接的参数来设置窗口的绝对位置，但你可以通过调整窗口的边界条件来近似实现
-        // 一种方法是使用ImGui的窗口标志（如ImGuiWindowFlags_NoMove）来防止用户移动窗口，并通过内容对齐来影响窗口的最终位置
-        // 然而，由于ImGui的布局机制，直接设置绝对位置并不总是可行的。因此，我们通常通过调整布局和窗口大小来近似达到所需的效果
+        ImGui::SetNextWindowPos(ImVec2(xPos, yPos), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_FirstUseEver);
+        ImGui::Begin("Fixed Window in Top Right Corner", nullptr, ImGuiWindowFlags_NoCollapse);
 
-        // 开始一个新的窗口，但注意我们没有直接设置位置
-        ImGui::SetNextWindowPos(ImVec2(xPos, yPos), ImGuiCond_FirstUseEver); // 仅在窗口第一次创建时设置位置
-        ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_FirstUseEver); // 仅在窗口第一次创建时设置大小
-        ImGui::Begin("Fixed Window in Top Right Corner", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize); // 使用标志来防止窗口被折叠、调整大小或移动
-        // 在这里绘制窗口内容
-        ImGui::ColorEdit3("MyColor##1", (float*)&dirLightColor);
-        // 结束窗口
+        for(auto [key,drawable] : sceneComponent->modelMap) {
+            ImGui::SeparatorText(key.c_str());
+            ImGui::Text("address:%x",&(drawable->Position[0]));
+            ImGui::DragFloat3(("Position##"+key).c_str(),&(drawable->Position[0]),0.2f,-FLT_MAX,FLT_MAX);
+            ImGui::DragFloat3(("Rotation"+key).c_str(),&(drawable->Rotation[0]),0.1f,0.0f,360.0f);
+            ImGui::DragFloat3(("Scale##"+key).c_str(),&(drawable->Scale[0]),0.1f,0.0f,10.0f);
+        }
+
+        ImGui::SeparatorText("Light");
+        ImGui::ColorEdit3("MyColor##1", &(sceneComponent->dirLight.lightColor[0]));
+        ImGui::SeparatorText("Camera");
+        Camera& cam = sceneComponent->camera;
+        ImGui::Text("Postion:(%3f,%3f,%3f)",cam.Position.x,cam.Position.y,cam.Position.z);
+        ImGui::Text("Pitch:%3f",cam.Pitch);
+        ImGui::Text("Yaw:%3f",cam.Yaw);
         ImGui::End();
     }
     ImGui::Render();
-    param_update();
 }
 
 void InputComponent::destroy() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 

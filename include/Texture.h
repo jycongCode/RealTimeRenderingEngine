@@ -5,9 +5,11 @@
 #pragma once
 #include <string>
 #include <assimp/scene.h>
+#include <glm/glm.hpp>
 class Texture {
 public:
     void LoadFromFile(const char* filePath, bool sRGB);
+    void CreateFromColor(glm::vec3 color,int size);
     unsigned int id;
     unsigned int type;
     aiString path;

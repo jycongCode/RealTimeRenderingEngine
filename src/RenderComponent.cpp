@@ -22,7 +22,9 @@ void RenderComponent::setup(SceneComponent &scene) {
 }
 
 void RenderComponent::update(float deltaTime) {
-     sceneComponent->drawModel("Marry",shaderMap["BlinnPhong"]);
+     for(auto [key,m] : sceneComponent->modelMap) {
+         sceneComponent->draw(key.c_str(),shaderMap["BlinnPhong"]);
+     }
 }
 
 void RenderComponent::destroy() {
