@@ -113,23 +113,49 @@ void InputComponent::update(float deltaTime) {
 
         ImGui::SetNextWindowPos(ImVec2(xPos, yPos), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight), ImGuiCond_FirstUseEver);
-        ImGui::Begin("Fixed Window in Top Right Corner", nullptr, ImGuiWindowFlags_NoCollapse);
+        ImGui::Begin("Config Panel", nullptr, ImGuiWindowFlags_NoCollapse);
 
-        for(auto [key,drawable] : sceneComponent->modelMap) {
-            ImGui::SeparatorText(key.c_str());
-            ImGui::Text("address:%x",&(drawable->Position[0]));
-            ImGui::DragFloat3(("Position##"+key).c_str(),&(drawable->Position[0]),0.2f,-FLT_MAX,FLT_MAX);
-            ImGui::DragFloat3(("Rotation"+key).c_str(),&(drawable->Rotation[0]),0.1f,0.0f,360.0f);
-            ImGui::DragFloat3(("Scale##"+key).c_str(),&(drawable->Scale[0]),0.1f,0.0f,10.0f);
+        if(ImGui::CollapsingHeader("Models")) {
+            for(auto [key,drawable] : sceneComponent->modelMap) {
+                ImGui::SeparatorText(key.c_str());
+                ImGui::DragFloat3(("Position##"+key).c_str(),&(drawable->Position[0]),0.2f,-FLT_MAX,FLT_MAX);
+                ImGui::SliderFloat3(("Rotation##"+key).c_str(),&(drawable->Rotation[0]),-360.0f,360.0f);
+                ImGui::DragFloat3(("Scale##"+key).c_str(),&(drawable->Scale[0]),0.1f,0.0f,10.0f);
+            }
         }
-
-        ImGui::SeparatorText("Light");
-        ImGui::ColorEdit3("MyColor##1", &(sceneComponent->dirLight.lightColor[0]));
-        ImGui::SeparatorText("Camera");
-        Camera& cam = sceneComponent->camera;
-        ImGui::Text("Postion:(%3f,%3f,%3f)",cam.Position.x,cam.Position.y,cam.Position.z);
-        ImGui::Text("Pitch:%3f",cam.Pitch);
-        ImGui::Text("Yaw:%3f",cam.Yaw);
+        if(ImGui::CollapsingHeader("Lights")) {
+            for(auto light : sceneComponent->lights) {
+                ImGui::SeparatorText(light->ID.c_str());
+                std::string id = light->ID;
+                glm::vec3 a;
+                if(light->type == LightType::Directional) {
+                    auto dirLight = (DirLight*)light;
+                    ImGui::Text("Directional");
+                    ImGui::SliderFloat3(("Direction##"+id).c_str(),&(dirLight->direction[0]),-360.0f,360.0f);
+                    ImGui::ColorEdit3(("Color##"+id).c_str(),&(dirLight->lightColor[0]));
+                    ImGui::DragFloat(("Intensity##"+id).c_str(),&(dirLight->intensity),0.1f,0.0f,FLT_MAX);
+                }else if(light->type == LightType::Point) {
+                    auto pointLight = (PointLight*)light;
+                    ImGui::Text("Point");
+                    ImGui::DragFloat3(("Position##"+id).c_str(),&(pointLight->position[0]),0.2f,-FLT_MAX,FLT_MAX);
+                    ImGui::ColorEdit3(("Color##"+id).c_str(),&(pointLight->lightColor[0]));
+                    ImGui::DragFloat(("Intensity##"+id).c_str(),&(pointLight->intensity),0.1f,0.0f,FLT_MAX);
+                    ImGui::DragFloat(("Radius##"+id).c_str(),&(pointLight->radius),0.1f,0.0f,FLT_MAX);
+                }
+            }
+            ImGui::SeparatorText("Environment");
+            ImGui::SliderFloat("envLight",&sceneComponent->envLight,0.0f,1.0f);
+        }
+        if(ImGui::CollapsingHeader("Camera")) {
+            ImGui::SeparatorText(camera->ID.c_str());
+            Camera& cam = sceneComponent->camera;
+            ImGui::Text("Postion:(%3f,%3f,%3f)",cam.Position.x,cam.Position.y,cam.Position.z);
+            ImGui::Text("Pitch:%3f",cam.Pitch);
+            ImGui::Text("Yaw:%3f",cam.Yaw);
+            ImGui::Text("Zoom:%3f",cam.Zoom);
+            ImGui::SliderFloat("Speed",&(cam.MovementSpeed),0.1f,10.0f);
+        }
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
     ImGui::Render();

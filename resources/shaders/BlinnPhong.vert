@@ -14,13 +14,15 @@ layout (location = 3) in vec3 tangent_mS;
 out VS_OUT{
     vec3 fragPos_tS;
     vec3 cameraPos_tS;
-    vec3 dirLight_tS;
-//    vec3 pointLight_tS[4];
+    vec3 dirLight_tS[5];
+    vec3 pointLight_tS[5];
     vec3 fragPos_wS;
     vec3 cameraPos_wS;
     vec2 texCoord;
 //    vec4 fragPos_lS;
 } vs_out;
+
+
 
 //Matrices
 uniform mat4 MVP;
@@ -31,8 +33,21 @@ uniform mat4 M;
 uniform vec3 cameraPos_wS;
 
 //Light data
-uniform vec3 dirLight_wS;
-//uniform vec3 pointLight_wS[4];
+uniform vec3 dirLight_wS[5] = {
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+};
+
+uniform vec3 pointLight_wS[5] = {
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+    vec3(0.0,0.0,0.0),
+};
 
 void main(){
     //Position in clip space
@@ -56,11 +71,12 @@ void main(){
     // vs_out.fragPos_tS = TBN * fragPos_wS;
     vs_out.fragPos_tS = TBN * vs_out.fragPos_wS;
     vs_out.cameraPos_tS = TBN * cameraPos_wS;
-    vs_out.dirLight_tS = TBN * dirLight_wS;
-//    for(int i = 0; i < 4; ++i){
-//        vs_out.pointLight_tS[i] = TBN * pointLight_wS[i];
-//    }
-
+    for(int i = 0;i < 5;++i){
+        vs_out.dirLight_tS[i] = TBN * normalize(dirLight_wS[i]);
+    }
+    for(int i = 0; i < 5; ++i){
+        vs_out.pointLight_tS[i] = TBN * normalize(pointLight_wS[i]);
+    }
     //Lights space output
 //    vs_out.fragPos_lS  = lightSpaceMatrix * vec4(vs_out.fragPos_wS, 1.0);
 }

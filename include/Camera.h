@@ -7,6 +7,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
@@ -22,6 +23,7 @@ const float INITIAL_SENSITIVITY =  0.1f;
 const float INITIAL_ZOOM        =  45.0f;
 class Camera {
 public:
+    std::string ID;
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Up;

@@ -9,6 +9,7 @@
 class Quad :public Drawable{
 public:
     Quad();
+    Quad(glm::vec3 position,glm::vec3 rotation,glm::vec3 scale);
     void draw(Shader shader) override;
     void destroy() override;
 public:
