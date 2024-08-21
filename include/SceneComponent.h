@@ -10,6 +10,8 @@
 #include "Light.h"
 #include "DisplayComponent.h"
 #include <unordered_map>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 class SceneComponent {
 public:

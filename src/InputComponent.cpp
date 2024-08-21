@@ -2,10 +2,9 @@
 // Created by Lenovo on 2024/8/14.
 //
 
-#include "InputComponent.h"
+
 #include <iostream>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
+#include "InputComponent.h"
 bool firstMouse = true;
 float lastX = 0.0f;
 float lastY = 0.0f;
@@ -13,7 +12,6 @@ Camera* camera = nullptr;
 bool isEditMode = false;
 
 // edit parameters
-
 
 void InputComponent::mouse_pos_callback(GLFWwindow *window, double xpos, double ypos) {
     float xposIn = static_cast<float>(xpos);
@@ -30,7 +28,8 @@ void InputComponent::mouse_pos_callback(GLFWwindow *window, double xpos, double 
 }
 
 void InputComponent::mouse_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    camera->ProcessMouseScroll(yoffset);
+    if(isEditMode)
+        camera->ProcessMouseScroll(yoffset);
 }
 
 void InputComponent::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -154,6 +153,10 @@ void InputComponent::update(float deltaTime) {
             ImGui::Text("Yaw:%3f",cam.Yaw);
             ImGui::Text("Zoom:%3f",cam.Zoom);
             ImGui::SliderFloat("Speed",&(cam.MovementSpeed),0.1f,10.0f);
+        }
+        ImGui::SeparatorText("Scene Config");
+        if(ImGui::Button("Save File")) {
+            sceneComponent->SaveScene(sceneComponent->sceneFile.c_str());
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();

@@ -1,0 +1,15 @@
+{
+  "ID": "Marry",
+  "Models": [
+    {
+      "ID": "Marry",
+      "path": "../resources/models/Marry/Marry.obj",
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "type": "model"
+    }
+  ]
+}

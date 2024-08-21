@@ -13,30 +13,36 @@ enum LightType {
     Point
 };
 
-struct LightBase {
+class LightBase {
+public:
     std::string ID;
     LightType type;
     LightBase(glm::vec3 color,float intensity):
         lightColor(color),intensity(intensity){}
     glm::vec3 lightColor;
     float intensity;
+    virtual std::string GetTypeName(){};
 };
 
-struct DirLight:LightBase {
+class DirLight:public LightBase {
+public:
     DirLight(std::string id,glm::vec3 dir = glm::vec3(1.0f,-1.0f,-0.3f),glm::vec3 color = glm::vec3(1.0f,1.0f,1.0f),float intensity = 1.0f):
         direction(dir),LightBase(color,intensity) {
         ID = id;
         type = LightType::Directional;
     }
+    std::string GetTypeName() override;
     glm::vec3 direction;
 };
 
-struct PointLight:LightBase {
+class PointLight:public LightBase {
+public:
     PointLight(std::string id,glm::vec3 postion = glm::vec3(0.0f),float radius = 10.0f,glm::vec3 color = glm::vec3(1.0f,1.0f,1.0f),float intensity = 1.0f):
         position(position),radius(radius),LightBase(color,intensity) {
         ID = id;
         type = LightType::Point;
     }
+    std::string GetTypeName() override;
     glm::vec3 position;
     float radius;
 };

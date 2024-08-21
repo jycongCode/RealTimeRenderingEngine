@@ -4,13 +4,11 @@
 
 #include "SceneComponent.h"
 #include <fstream>
-#include <nlohmann/json.hpp>
 #include <string>
-
 #include "InputComponent.h"
 #include "Quad.h"
 using json = nlohmann::json;
-
+using namespace nlohmann::literals;
 glm::vec3 EulerToVector(glm::vec3 rotation) {
     glm::quat quat = Drawable::EulerToQuat(rotation);
     glm::mat4 rotMat = glm::mat4_cast(quat);
@@ -80,6 +78,7 @@ void SceneComponent::LoadScene(const char *filePath) {
     std::ifstream f(filePath);
     json data = json::parse(f);
     sceneID = data["ID"];
+    sceneFile = filePath;
     std::string ID,path,type;
     glm::vec3 position,rotation,scale;
     // Load model
@@ -98,7 +97,7 @@ void SceneComponent::LoadScene(const char *filePath) {
             rotation = {model["rotation"][0],model["rotation"][1],model["rotation"][2]};
             scale = {model["scale"][0],model["scale"][1],model["scale"][2]};
             Quad* quad = new Quad(position,rotation,scale);
-            glm::vec3 color = {model["color"][0],model["color"][1],model["color"][2]};
+            glm::vec3 color = {1.0f,1.0f,1.0f};
             Texture tex;
             tex.CreateFromColor(color,32.0f);
             quad->texture = tex.id;
@@ -136,12 +135,71 @@ void SceneComponent::LoadScene(const char *filePath) {
             lights.push_back(light);
         }
     }
+
+    envLight = data["Environment"]["Irradiance"];
     std::cout << "Scene Loaded:" << data["ID"] << std::endl;
     std::cout << "From path:" << filePath << std::endl;
 }
 
 void SceneComponent::SaveScene(const char *filePath) {
-    
+    json data;
+    data["ID"] = sceneID;
+    auto modelData = json::array();
+    for(auto [key,drawable] : modelMap) {
+        if(Model* ptr = dynamic_cast<Model*>(drawable)) {
+            json model = {
+                {"ID",key.c_str()},
+                {"path",ptr->filePath.c_str()},
+                {"type","model"},
+                {"position",json::array({ptr->Position[0],ptr->Position[1],ptr->Position[2]})},
+                {"rotation",json::array({ptr->Rotation[0],ptr->Rotation[1],ptr->Rotation[2]})},
+                  {"scale",json::array({ptr->Scale[0],ptr->Scale[1],ptr->Scale[2]})}            };
+            modelData.push_back(model);
+        }else if(Quad* ptr = dynamic_cast<Quad*>(drawable)) {
+            json quad = {
+                {"ID",key.c_str()},
+                {"type","Quad"},
+                {"position",json::array({ptr->Position[0],ptr->Position[1],ptr->Position[2]})},
+                {"rotation",json::array({ptr->Rotation[0],ptr->Rotation[1],ptr->Rotation[2]})},
+                  {"scale",json::array({ptr->Scale[0],ptr->Scale[1],ptr->Scale[2]})},
+            };
+            modelData.push_back(quad);
+        }
+    }
+    data["Models"] = modelData;
+    json camData = {
+        {"ID",camera.ID},
+        {"position",json::array({camera.Position[0],camera.Position[1],camera.Position[2]})},
+        {"pitch",camera.Pitch},
+          {"yaw",camera.Yaw},
+        {"zoom",camera.Zoom},
+        {"sensitivity",camera.MouseSensitivity},
+        {"speed",camera.MovementSpeed}
+    };
+    data["Camera"] = camData;
+    json lightData = json::array();
+    for(auto light : lights) {
+        if(DirLight* ptr = dynamic_cast<DirLight*>(light)) {
+            json ld = {
+                {"ID",ptr->ID.c_str()},
+                {"type","directional"},
+                {"direction",json::array({ptr->direction[0],ptr->direction[1],ptr->direction[2]})},
+                {"color",json::array({ptr->lightColor[0],ptr->lightColor[1],ptr->lightColor[2]})},
+                {"intensity",ptr->intensity}
+            };
+            lightData.push_back(ld);
+        }
+    }
+    data["Light"] = lightData;
+    data["Environment"]["Irradiance"] = envLight;
+    std::ofstream outFile(filePath);
+    if (!outFile.is_open()) {
+        std::cerr << "file open failed" << std::endl;
+    }else {
+        outFile << data.dump();
+    }
+    outFile.close();
+    std::cout << "Write into file \""<< filePath << "\""<< std::endl;
 }
 
 

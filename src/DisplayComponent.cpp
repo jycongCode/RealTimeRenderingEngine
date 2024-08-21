@@ -2,13 +2,7 @@
 // Created by Lenovo on 2024/8/13.
 //
 
-#include <iostream>
-#include <glad/glad.h>
 #include "DisplayComponent.h"
-#include "WindowCallback.h"
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
                             GLuint id,
@@ -89,8 +83,6 @@ void DisplayComponent::setup() {
     glViewport(0,0,ScrWidth,ScrHeight);
     glEnable              ( GL_DEBUG_OUTPUT );
     glDebugMessageCallback(glDebugOutput, 0 );
-
-    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
 }
 
