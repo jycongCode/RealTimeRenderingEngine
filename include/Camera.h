@@ -38,7 +38,7 @@ public:
     float Zoom;
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
-
+    float aspect;
 public:
     Camera(glm::vec3 position = glm::vec3(1.9f, 3.3f, 2.5f),
             glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
@@ -56,6 +56,7 @@ public:
 
 public:
     glm::mat4 GetViewMatrix();
+    glm::mat4 GetProjectionMatrix();
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
     void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
     void ProcessMouseScroll(float yoffset);

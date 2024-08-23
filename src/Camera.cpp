@@ -8,6 +8,10 @@ glm::mat4 Camera::GetViewMatrix() {
     return glm::lookAt(Position, Position + Front, Up);
 }
 
+glm::mat4 Camera::GetProjectionMatrix() {
+    return glm::perspective(Zoom,aspect,nearPlane,farPlane);
+}
+
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
     float velocity = MovementSpeed * deltaTime;
     if (direction == FORWARD)

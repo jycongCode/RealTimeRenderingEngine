@@ -16,11 +16,11 @@ glm::vec3 EulerToVector(glm::vec3 rotation) {
 }
 
 void SceneComponent::draw(const char *modelName, Shader shader) {
-    if(modelMap.count(modelName) == 0) {
+    if(drawableMap.count(modelName) == 0) {
         std::cout << "SCENENCOMPONENT::ERROR[" << modelName << "]::Not in Scene" << std::endl;
         return;
     }
-    Drawable* model = modelMap[modelName];
+    Drawable* model = drawableMap[modelName];
     shader.use();
     glm::mat4 view = camera.GetViewMatrix();
     glm::mat4 projection = glm::perspective(camera.Zoom,aspect,camera.nearPlane,camera.farPlane);
@@ -54,7 +54,7 @@ void SceneComponent::draw(const char *modelName, Shader shader) {
 
 void SceneComponent::addModel(const char *modelName, const char *modelPath,glm::vec3 position,glm::vec3 rotation,glm::vec3 scale) {
     auto * model = new Model(modelPath);
-    if(modelMap.count(modelName) > 0) {
+    if(drawableMap.count(modelName) > 0) {
         std::cout << "SCENENCOMPONENT::ERROR[" << modelName << "] already exists" << std::endl;
         return;
     }
@@ -62,16 +62,16 @@ void SceneComponent::addModel(const char *modelName, const char *modelPath,glm::
         model->Position = position;
         model->Rotation = rotation;
         model->Scale = scale;
-        modelMap.insert({modelName,model});
+        drawableMap.insert({modelName,model});
     }
 }
 
 void SceneComponent::addDrawable(const char *name, Drawable *drawable) {
-    if(modelMap.count(name) > 0) {
+    if(drawableMap.count(name) > 0) {
         std::cout << "SCENENCOMPONENT::ERROR[" << name << "] already exists" << std::endl;
         return;
     }
-    modelMap.insert({name,drawable});
+    drawableMap.insert({name,drawable});
 }
 
 void SceneComponent::LoadScene(const char *filePath) {
@@ -145,7 +145,7 @@ void SceneComponent::SaveScene(const char *filePath) {
     json data;
     data["ID"] = sceneID;
     auto modelData = json::array();
-    for(auto [key,drawable] : modelMap) {
+    for(auto [key,drawable] : drawableMap) {
         if(Model* ptr = dynamic_cast<Model*>(drawable)) {
             json model = {
                 {"ID",key.c_str()},
@@ -208,14 +208,23 @@ void SceneComponent::setup(DisplayComponent &display) {
 }
 
 void SceneComponent::update(float deltaTime) const {
+
 }
 
 void SceneComponent::destroy() const {
-    for (auto [fst, snd] : modelMap) {
+    for (auto [fst, snd] : drawableMap) {
         if(snd != nullptr) {
             snd->destroy();
             delete(snd);
         }
     }
+}
+
+glm::mat4 SceneComponent::getViewMatrix() {
+    return camera.GetViewMatrix();
+}
+
+glm::mat4 SceneComponent::getProjectionMatrix() {
+    return glm::perspective(camera.Zoom,aspect,camera.nearPlane,camera.farPlane);
 }
 

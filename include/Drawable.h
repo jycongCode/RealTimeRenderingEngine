@@ -4,8 +4,7 @@
 
 #ifndef DRAWABLE_H
 #define DRAWABLE_H
-#include "Shader.h"
-
+#include "Material.h"
 class Drawable{
 public:
     Drawable(glm::vec3 position,glm::vec3 rotation,glm::vec3 scale):
@@ -16,6 +15,8 @@ public:
     virtual void destroy(){}
     glm::mat4 GetModelMatrix() const;
 public:
+    std::string ID;
+    Material* Mat;
     glm::vec3 Position = glm::vec3(0.0f);
     glm::vec3 Rotation = glm::vec3(0.0f);
     glm::vec3 Scale = glm::vec3(1.0f);

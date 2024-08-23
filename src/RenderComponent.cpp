@@ -17,12 +17,21 @@
 }
 
 void RenderComponent::setup(SceneComponent &scene) {
+     glGenBuffers(1,&matricesUBO);
+     glBindBuffer(GL_UNIFORM_BUFFER,matricesUBO);
+     glBufferData(GL_UNIFORM_BUFFER,128,nullptr,GL_STATIC_DRAW);
+     glBindBufferBase(GL_UNIFORM_BUFFER,0,matricesUBO);
     sceneComponent = &scene;
     glEnable(GL_DEPTH_TEST);
 }
 
 void RenderComponent::update(float deltaTime) {
-     for(auto [key,m] : sceneComponent->modelMap) {
+     glBindBuffer(GL_UNIFORM_BUFFER,matricesUBO);
+     glBufferSubData(GL_UNIFORM_BUFFER,0,sizeof(glm::mat4),glm::value_ptr(sceneComponent->GetProjectionMatrix()));
+     glBufferSubData(GL_UNIFORM_BUFFER,sizeof(glm::mat4),sizeof(glm::mat4),glm::value_ptr(sceneComponent->GetViewMatrix()));
+     glBindBuffer(GL_UNIFORM_BUFFER,0);
+
+     for(auto [key,drawable] : sceneComponent->drawableMap) {
          sceneComponent->draw(key.c_str(),shaderMap["BlinnPhong"]);
      }
 }

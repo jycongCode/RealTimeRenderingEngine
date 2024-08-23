@@ -15,14 +15,19 @@ using json = nlohmann::json;
 
 class SceneComponent {
 public:
-    std::vector<LightBase*> lights;
+    DirLight sunLight;
     float envLight = 1.0f;
     Camera camera;
-    std::unordered_map<std::string,Drawable*> modelMap;
+    std::unordered_map<std::string,Drawable*> drawableMap;
+    std::unordered_map<std::string,std::string> shaderMap;
     float aspect;
+
+public:
     std::string sceneFile;
     std::string sceneID;
 public:
+    glm::mat4 getViewMatrix();
+    glm::mat4 getProjectionMatrix();
     void draw(const char* modelName,Shader shader);
     void addModel(const char* modelName,const char* modelPath,glm::vec3 position = glm::vec3(0.0f),glm::vec3 rotation = glm::vec3(0.0f),glm::vec3 scale = glm::vec3(1.0f));
     void addDrawable(const char* name,Drawable* drawable);

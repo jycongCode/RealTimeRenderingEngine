@@ -115,7 +115,7 @@ void InputComponent::update(float deltaTime) {
         ImGui::Begin("Config Panel", nullptr, ImGuiWindowFlags_NoCollapse);
 
         if(ImGui::CollapsingHeader("Models")) {
-            for(auto [key,drawable] : sceneComponent->modelMap) {
+            for(auto [key,drawable] : sceneComponent->drawableMap) {
                 ImGui::SeparatorText(key.c_str());
                 ImGui::DragFloat3(("Position##"+key).c_str(),&(drawable->Position[0]),0.2f,-FLT_MAX,FLT_MAX);
                 ImGui::SliderFloat3(("Rotation##"+key).c_str(),&(drawable->Rotation[0]),-360.0f,360.0f);
