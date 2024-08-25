@@ -3,50 +3,62 @@
 //
 
 #include "RTREngine.h"
-#include <iostream>
-#include <imgui_impl_glfw.h>
+#include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+#include "DisplayComponent.h"
+#include "SceneComponent.h"
+#include "RenderComponent.h"
+#include "InputComponent.h"
+
+RTREngine::RTREngine() {
+    displayComponent = new DisplayComponent();
+    renderComponent = new RenderComponent();
+    inputComponent = new InputComponent();
+    sceneComponent = new SceneComponent();
+}
+
+RTREngine::~RTREngine() {
+    Terminate();
+}
 void RTREngine::updateTime() {
-    float currentTime = glfwGetTime();
+    auto currentTime = static_cast<float>(glfwGetTime());
     deltaTime = currentTime - lastFrame;
     lastFrame = currentTime;
 }
 
-void RTREngine::setup() {
-    displayComponent.setup();
-    sceneComponent.setup(displayComponent);
-    inputComponent.setup(displayComponent,sceneComponent);
-    renderComponent.setup(sceneComponent);
+void RTREngine::SetUp() {
+    displayComponent->SetUp(this);
+    sceneComponent->SetUp(this);
+    renderComponent->SetUp(this);
+    inputComponent->SetUp(this);
 }
 
-void RTREngine::run() {
-    bool flag = true;
-    while(!inputComponent.done) {
+void RTREngine::Run() {
+    while(!inputComponent->Done) {
         updateTime();
-        if (glfwGetWindowAttrib(displayComponent.window, GLFW_ICONIFIED) != 0)
+        if (glfwGetWindowAttrib(displayComponent->window, GLFW_ICONIFIED) != 0)
         {
             ImGui_ImplGlfw_Sleep(10);
             continue;
         }
-        inputComponent.update(deltaTime);
-        sceneComponent.update(deltaTime);
-        renderComponent.update(deltaTime);
-        displayComponent.update(deltaTime);
-        flag = false;
-
-        /*
-         * update time
-         * scene update --> blank
-         * render update --> render draw call
-         * display update --> clear color
-         * input poll events
-         */
+        inputComponent->Update(deltaTime);
+        // glfwPollEvents();
+        sceneComponent->Update(deltaTime);
+        // none
+        renderComponent->Update(deltaTime);
+        // set shader vao
+        // draw
+        displayComponent->Update(deltaTime);
+        // swap
+        // clear
     }
-    sceneComponent.destroy();
-    inputComponent.destroy();
-    displayComponent.destroy();
-    renderComponent.destroy();
 }
 
-void RTREngine::terminate() {
-
+void RTREngine::Terminate() {
+    inputComponent->Destroy();
+    sceneComponent->Destroy();
+    renderComponent->Destroy();
+    displayComponent->Destroy();
 }

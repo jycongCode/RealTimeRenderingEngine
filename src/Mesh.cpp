@@ -5,11 +5,11 @@
 #include "Mesh.h"
 #include <glad/glad.h>
 
-void Mesh::draw(Shader shader) {
+void Mesh::draw(Shader* shader) {
     int idx = 0;
     for(auto texture : textures) {
         if(texture.type == static_cast<unsigned int>(aiTextureType_DIFFUSE)) {
-            shader.setInt("diffuse1",idx);
+            shader->setInt("diffuse1",idx);
             glActiveTexture(GL_TEXTURE0+idx);
             glBindTexture(GL_TEXTURE_2D,texture.id);
             ++idx;

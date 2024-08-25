@@ -3,6 +3,10 @@
 //
 
 #include "Light.h"
+#include "MathUtils.h"
+glm::vec3 DirLight::GetDirVec3() {
+    return MATHUTILS::EulerToVec3(direction);
+}
 
 std::string DirLight::GetTypeName() {
     return "directional";

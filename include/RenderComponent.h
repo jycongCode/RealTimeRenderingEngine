@@ -5,20 +5,27 @@
 #ifndef RENDERCOMPONENT_H
 #define RENDERCOMPONENT_H
 
-
+#include "RTREngine.h"
 #include "SceneComponent.h"
-class RenderComponent {
+#include <unordered_map>
+class RenderComponent:public Component {
 public:
-    GLuint matricesUBO;
-    GLuint LightUBO;
-    std::unordered_map<std::string,Shader> shaderMap;
+    GLuint MatricesUBO = 0;
+    GLuint LightUBO = 0;
+    GLuint CameraUBO = 0;
+    GLuint ShadowMapFBO = 0;
+    GLuint ShadowMap = 0;
 private:
-    SceneComponent* sceneComponent = nullptr;
+    std::unordered_map<std::string,Shader*> shaderLib;
 public:
-    void addShader(const char* shaderName,const char* vsPath,const char* fsPath);
-    void setup(SceneComponent& scene);
-    void update(float deltaTime);
-    void destroy();
+    RenderComponent() = default;
+    void SetUp(RTREngine* engine) override;
+    void Update(float deltaTime) override;
+    void Destroy() override;
+private:
+    void LoadAndCompileShaders(const char* file);
+    void SetUpUBOData();
+    void GenerateShadowMap();
 };
 
 

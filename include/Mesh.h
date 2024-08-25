@@ -28,7 +28,7 @@ public :
         setupMesh();
     }
     Mesh() = default;
-    void draw(Shader shader) override;
+    void draw(Shader *shader) override;
     void destroy() override;
 public:
     GLuint VAO = 0;

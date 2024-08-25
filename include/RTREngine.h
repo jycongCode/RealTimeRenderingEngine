@@ -5,24 +5,25 @@
 
 #ifndef _RTR_ENGINE
 #define _RTR_ENGINE
-#include "SceneComponent.h"
-#include "InputComponent.h"
-#include "DisplayComponent.h"
-#include "RenderComponent.h"
-
+class DisplayComponent;
+class SceneComponent;
+class InputComponent;
+class RenderComponent;
 class RTREngine {
 private:
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
     void updateTime();
 public:
-    DisplayComponent displayComponent;
-    SceneComponent sceneComponent;
-    InputComponent inputComponent;
-    RenderComponent renderComponent;
+    RTREngine();
+    ~RTREngine();
+    DisplayComponent* displayComponent = nullptr;
+    SceneComponent* sceneComponent = nullptr;
+    InputComponent* inputComponent = nullptr;
+    RenderComponent* renderComponent = nullptr;
 public:
-    void setup();
-    void run();
-    void terminate();
+    void SetUp();
+    void Run();
+    void Terminate();
 };
 #endif

@@ -4,12 +4,13 @@
 
 #ifndef MATERIAL_H
 #define MATERIAL_H
+#include <string>
 #include "Shader.h"
-
 class Material {
 public:
     std::string shaderName;
     virtual std::string GetType(){}
+    virtual void Render(Shader* shader){}
 };
 
 class MBlinnPhong:public Material{
@@ -20,6 +21,11 @@ public:
     float ambient;
     std::string GetType() override {
         return "BlinnPhong";
+    }
+
+    void Render(Shader *shader) override {
+        shader->use();
+        shader->setFloat("ambient",ambient);
     }
 };
 
@@ -33,27 +39,15 @@ public:
         shaderName = "BlinnPhong_Pure";
     }
     std::string GetType() override {
-        return "BlinnPhong";
+        return "BlinnPhong_Pure";
+    }
+
+    void Render(Shader *shader) override {
+        shader->use();
+        shader->setFloat("ambient",ambient);
+        shader->setVec3("color",color);
     }
     glm::vec3 color;
     float ambient;
 };
-
-// scene stores the data vao vbo
-// draw scene:
-// draw skybox
-// draw lightsource
-// drawable draw() --> set model set material params, set
-
-// deferred rendering
-// 2 pass
-// G-Buffer
-// scene --> forward rendering
-// quad render
-// post processing ...
-// 2 approaches
-// 1. scene draw & store
-// 2. scene store render draw
-// 4. render.draw(Scene);
-
 #endif //MATERIAL_H

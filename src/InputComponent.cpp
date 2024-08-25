@@ -1,10 +1,16 @@
 //
 // Created by Lenovo on 2024/8/14.
 //
-
-
+#include <glad/glad.h>
 #include <iostream>
 #include "InputComponent.h"
+
+#include "Material.h"
+#include "RTREngine.h"
+#include "Scene.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 bool firstMouse = true;
 float lastX = 0.0f;
 float lastY = 0.0f;
@@ -12,10 +18,9 @@ Camera* camera = nullptr;
 bool isEditMode = false;
 
 // edit parameters
-
-void InputComponent::mouse_pos_callback(GLFWwindow *window, double xpos, double ypos) {
-    float xposIn = static_cast<float>(xpos);
-    float yposIn = static_cast<float>(ypos);
+void mouse_pos_callback(GLFWwindow *window, double xpos, double ypos) {
+    float xposIn = xpos;
+    float yposIn = ypos;
     if(firstMouse){
         lastX = xposIn,lastY = yposIn;
         firstMouse = false;
@@ -27,38 +32,36 @@ void InputComponent::mouse_pos_callback(GLFWwindow *window, double xpos, double 
         camera->ProcessMouseMovement(xoffset,yoffset,true);
 }
 
-void InputComponent::mouse_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+void mouse_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     if(isEditMode)
         camera->ProcessMouseScroll(yoffset);
 }
 
-void InputComponent::framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     glViewport(0,0,width,height);
 }
 
 
-void InputComponent::mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
     if(button == GLFW_MOUSE_BUTTON_RIGHT) {
         isEditMode = (action == GLFW_PRESS);
     }
 }
 
-void InputComponent::setup(DisplayComponent &display,SceneComponent& scene) {
-    lastX = display.ScrWidth / 2.0f;
-    lastY = display.ScrHeight / 2.0f;
-    camera = &(scene.camera);
-    sceneComponent = &scene;
-    window = display.window;
-    if(window == nullptr) {
-        std::cout << "InputComponent::displayComponent not setup correctly" << std::endl;
-    }
+void InputComponent::SetUp(RTREngine*engine) {
+    Component::SetUp(engine);
+    lastX = engine->displayComponent->ScrWidth / 2.0f;
+    lastY = engine->displayComponent->ScrHeight / 2.0f;
+    camera = &(engine->sceneComponent->Current->MainCamera);
+    window = engine->displayComponent->window;
+
     WindowCallback callbacks;
     callbacks.mouse_pos_callback = mouse_pos_callback;
     callbacks.mouse_scroll_callback = mouse_scroll_callback;
-    callbacks.framebuffer_size_callback = callbacks.framebuffer_size_callback;
+    callbacks.framebuffer_size_callback = framebuffer_size_callback;
     callbacks.mouse_button_callback = mouse_button_callback;
-    this->windowCallback = callbacks;
-    display.setCallBacks(callbacks);
+    engine->displayComponent->SetCallBacks(callbacks);
+
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -71,7 +74,7 @@ void InputComponent::setup(DisplayComponent &display,SceneComponent& scene) {
 // parameters
 
 bool activateMouseRotate = false;
-void InputComponent::update(float deltaTime) {
+void InputComponent::Update(float deltaTime) {
     glfwPollEvents();
     {
         if(window == nullptr) {
@@ -79,7 +82,7 @@ void InputComponent::update(float deltaTime) {
             return;
         }
         if(glfwGetKey(window,GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            done = true;
+            Done = true;
         }
         if(glfwGetKey(window,GLFW_KEY_W) == GLFW_PRESS) {
             camera->ProcessKeyboard(Camera_Movement::FORWARD,deltaTime);
@@ -115,39 +118,28 @@ void InputComponent::update(float deltaTime) {
         ImGui::Begin("Config Panel", nullptr, ImGuiWindowFlags_NoCollapse);
 
         if(ImGui::CollapsingHeader("Models")) {
-            for(auto [key,drawable] : sceneComponent->drawableMap) {
-                ImGui::SeparatorText(key.c_str());
-                ImGui::DragFloat3(("Position##"+key).c_str(),&(drawable->Position[0]),0.2f,-FLT_MAX,FLT_MAX);
-                ImGui::SliderFloat3(("Rotation##"+key).c_str(),&(drawable->Rotation[0]),-360.0f,360.0f);
-                ImGui::DragFloat3(("Scale##"+key).c_str(),&(drawable->Scale[0]),0.1f,0.0f,10.0f);
+            for(auto drawable : engine->sceneComponent->Current->DrawableList) {
+                ImGui::SeparatorText(drawable->ID.c_str());
+                ImGui::DragFloat3(("Position##"+drawable->ID).c_str(),&(drawable->Position[0]),0.2f,-FLT_MAX,FLT_MAX);
+                ImGui::SliderFloat3(("Rotation##"+drawable->ID).c_str(),&(drawable->Rotation[0]),-360.0f,360.0f);
+                ImGui::DragFloat3(("Scale##"+drawable->ID).c_str(),&(drawable->Scale[0]),0.1f,0.0f,10.0f);
+                if(auto* ptr = dynamic_cast<MBlinnPhong*>(drawable->Mat)) {
+                    ImGui::SliderFloat(("Ambient##"+drawable->ID).c_str(),&(ptr->ambient),0.0f,1.0f);
+                }else if(auto* ptr = dynamic_cast<MBlinnPhong_Pure*>(drawable->Mat)) {
+                    ImGui::SliderFloat(("Ambient##"+drawable->ID).c_str(),&(ptr->ambient),0.0f,1.0f);
+                    ImGui::ColorEdit3(("Color##"+drawable->ID).c_str(),glm::value_ptr(ptr->color));
+                }
             }
         }
         if(ImGui::CollapsingHeader("Lights")) {
-            for(auto light : sceneComponent->lights) {
-                ImGui::SeparatorText(light->ID.c_str());
-                std::string id = light->ID;
-                glm::vec3 a;
-                if(light->type == LightType::Directional) {
-                    auto dirLight = (DirLight*)light;
-                    ImGui::Text("Directional");
-                    ImGui::SliderFloat3(("Direction##"+id).c_str(),&(dirLight->direction[0]),-360.0f,360.0f);
-                    ImGui::ColorEdit3(("Color##"+id).c_str(),&(dirLight->lightColor[0]));
-                    ImGui::DragFloat(("Intensity##"+id).c_str(),&(dirLight->intensity),0.1f,0.0f,FLT_MAX);
-                }else if(light->type == LightType::Point) {
-                    auto pointLight = (PointLight*)light;
-                    ImGui::Text("Point");
-                    ImGui::DragFloat3(("Position##"+id).c_str(),&(pointLight->position[0]),0.2f,-FLT_MAX,FLT_MAX);
-                    ImGui::ColorEdit3(("Color##"+id).c_str(),&(pointLight->lightColor[0]));
-                    ImGui::DragFloat(("Intensity##"+id).c_str(),&(pointLight->intensity),0.1f,0.0f,FLT_MAX);
-                    ImGui::DragFloat(("Radius##"+id).c_str(),&(pointLight->radius),0.1f,0.0f,FLT_MAX);
-                }
-            }
-            ImGui::SeparatorText("Environment");
-            ImGui::SliderFloat("envLight",&sceneComponent->envLight,0.0f,1.0f);
+            DirLight& sunLight = engine->sceneComponent->Current->Sunlight;
+            ImGui::SliderFloat3("Direction##SunLight",glm::value_ptr(sunLight.direction),-360.0f,360.0f);
+            ImGui::ColorEdit3("Color##SunLight",glm::value_ptr(sunLight.lightColor));
+            ImGui::SliderFloat("Intensity##SunLight",&(sunLight.intensity),0.0f,10.0f);
         }
         if(ImGui::CollapsingHeader("Camera")) {
             ImGui::SeparatorText(camera->ID.c_str());
-            Camera& cam = sceneComponent->camera;
+            Camera& cam = engine->sceneComponent->Current->MainCamera;
             ImGui::Text("Postion:(%3f,%3f,%3f)",cam.Position.x,cam.Position.y,cam.Position.z);
             ImGui::Text("Pitch:%3f",cam.Pitch);
             ImGui::Text("Yaw:%3f",cam.Yaw);
@@ -156,7 +148,7 @@ void InputComponent::update(float deltaTime) {
         }
         ImGui::SeparatorText("Scene Config");
         if(ImGui::Button("Save File")) {
-            sceneComponent->SaveScene(sceneComponent->sceneFile.c_str());
+            engine->sceneComponent->Current->Save();
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
@@ -164,12 +156,11 @@ void InputComponent::update(float deltaTime) {
     ImGui::Render();
 }
 
-void InputComponent::destroy() {
+void InputComponent::Destroy() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
-
 
 // Display setup: window context opengl
 

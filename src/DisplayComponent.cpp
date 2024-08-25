@@ -2,6 +2,11 @@
 // Created by Lenovo on 2024/8/13.
 //
 
+#include <glad/glad.h>
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include <iostream>
 #include "DisplayComponent.h"
 void APIENTRY glDebugOutput(GLenum source,
                             GLenum type,
@@ -50,7 +55,8 @@ void APIENTRY glDebugOutput(GLenum source,
     std::cout << std::endl;
 }
 
-void DisplayComponent::setup() {
+void DisplayComponent::SetUp(RTREngine *engine) {
+    Component::SetUp(engine);
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -86,7 +92,7 @@ void DisplayComponent::setup() {
     IMGUI_CHECKVERSION();
 }
 
-void DisplayComponent::update(float deltaTime) {
+void DisplayComponent::Update(float deltaTime) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     glfwSwapBuffers(window);
     glClearColor(0.2f,0.4f,0.2f,1.0f);
@@ -95,15 +101,13 @@ void DisplayComponent::update(float deltaTime) {
 
 bool show_demo_window = true;
 bool show_another_window = false;
-void DisplayComponent::renderGui() {
-}
 
-void DisplayComponent::destroy() {
+void DisplayComponent::Destroy() {
     glfwDestroyWindow(window);
     glfwTerminate();
 }
 
-void DisplayComponent::setCallBacks(WindowCallback callbacks) {
+void DisplayComponent::SetCallBacks(WindowCallback callbacks) {
     glfwSetFramebufferSizeCallback(window, callbacks.framebuffer_size_callback);
     glfwSetCursorPosCallback(window,callbacks.mouse_pos_callback);
     glfwSetScrollCallback(window,callbacks.mouse_scroll_callback);

@@ -4,34 +4,20 @@
 
 #ifndef _DISPLAY_COMPONENT
 #define _DISPLAY_COMPONENT
-#include <iostream>
-#include <glad/glad.h>
-#include "DisplayComponent.h"
+
+#include "Component.h"
 #include "WindowCallback.h"
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
-#include <WindowCallback.h>
-class DisplayComponent {
-private:
-    float deltaTime = 0.0f;
-    float lastFrame = 0.0f;
-    void updateTime(){
-        float currentTime = (float)glfwGetTime();
-        deltaTime = currentTime-lastFrame;
-        lastFrame = currentTime;
-    }
+class RTREngine;
+class DisplayComponent:public Component
+{
 public:
     GLFWwindow* window;
-    void setup();
-    void update(float deltaTime);
-    void renderGui();
-    // render
-    // clear color
-    // swap buffer
-    void destroy();
-    void setCallBacks(WindowCallback callbacks);
+public:
+    void SetUp(RTREngine* engine) override;
+    void Update(float deltaTime) override;
+    void Destroy() override;
+    void SetCallBacks(WindowCallback callbacks);
 public:
     const unsigned int ScrWidth = 1920;
     const unsigned int ScrHeight = 1080;

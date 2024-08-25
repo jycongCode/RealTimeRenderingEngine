@@ -9,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 class Shader {
 public:
-    unsigned int ID;
+    unsigned int ID = 0;
     Shader(const char *vertexPath, const char *fragmentPath);
     Shader(){}
     void Destroy(){

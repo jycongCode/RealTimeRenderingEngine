@@ -9,24 +9,25 @@
 #include "FileUtils.h"
 
 glm::mat4 Scene::GetViewMatrix() {
-    return camera.GetViewMatrix();
+    return MainCamera.GetViewMatrix();
 }
 
 glm::mat4 Scene::GetProjectionMatrix() const {
-    return glm::perspective(camera.Zoom,camera.aspect,camera.nearPlane,camera.farPlane);
+    return glm::perspective(MainCamera.Zoom,MainCamera.aspect,MainCamera.nearPlane,MainCamera.farPlane);
 }
 
-void Scene::destroy() {
-    for(Drawable* drawable : drawableList) {
+void Scene::Destroy() {
+    for(Drawable* drawable : DrawableList) {
         drawable->destroy();
     }
+    DrawableList.clear();
 }
 
 void Scene::Load(const char *path) {
-    filePath = path;
+    StoragePath = path;
     json data = FileUtils::GetJsonFromFile(path);
     // load scene id
-    id = data["id"];
+    ID = data["id"];
     // Load model
     auto drawableList = data["Models"];
     for (auto drawable : drawableList) {
@@ -39,49 +40,54 @@ void Scene::Load(const char *path) {
             model->Rotation = FileUtils::GetVec3FromJson(drawable,"rotation");
             model->Scale = FileUtils::GetVec3FromJson(drawable,"scale");
             model->Mat = FileUtils::GetMaterialFromJson(drawable["material"]);
-            this->drawableList.push_back(model);
+            this->DrawableList.push_back(model);
         }else if(drawable["type"] == "Quad") {
-            std::string ID = drawable["id"];
             auto* quad = new Quad();
+            quad->ID = drawable["id"];
             quad->Position = FileUtils::GetVec3FromJson(drawable,"position");
             quad->Rotation = FileUtils::GetVec3FromJson(drawable,"rotation");
             quad->Scale = FileUtils::GetVec3FromJson(drawable,"scale");
             quad->Mat = FileUtils::GetMaterialFromJson(drawable["material"]);
-            this->drawableList.push_back(quad);
+            this->DrawableList.push_back(quad);
         }
     }
 
     // Load camera
     auto cameraData = data["Camera"];
-    camera.Position = FileUtils::GetVec3FromJson(cameraData,"position");
-    camera.Pitch = cameraData["pitch"];
-    camera.Yaw = cameraData["yaw"];
-    camera.Zoom = cameraData["zoom"];
-    camera.MouseSensitivity = cameraData["sensitivity"];
-    camera.MovementSpeed = cameraData["speed"];
-    camera.ID = cameraData["id"];
+    MainCamera.Position = FileUtils::GetVec3FromJson(cameraData,"position");
+    MainCamera.Pitch = cameraData["pitch"];
+    MainCamera.Yaw = cameraData["yaw"];
+    MainCamera.Zoom = cameraData["zoom"];
+    MainCamera.MouseSensitivity = cameraData["sensitivity"];
+    MainCamera.MovementSpeed = cameraData["speed"];
+    MainCamera.ID = cameraData["id"];
 
     // Load Lights
     auto lightData = data["Light"];
     // load sunlight
-    sunLight.direction = FileUtils::GetVec3FromJson(lightData["SunLight"],"direction");
-    sunLight.lightColor = FileUtils::GetVec3FromJson(lightData["SunLight"],"color");
-    sunLight.intensity = lightData["SunLight"]["intensity"];
+    Sunlight.direction = FileUtils::GetVec3FromJson(lightData["SunLight"],"direction");
+    Sunlight.lightColor = FileUtils::GetVec3FromJson(lightData["SunLight"],"color");
+    Sunlight.intensity = lightData["SunLight"]["intensity"];
 
-    std::cout << "Scene [" << data["ID"] << "] loaded from path : "  << filePath << std::endl;
+    std::cout << "Scene [" << ID << "] loaded from path : "  << StoragePath << std::endl;
 }
+
 void Scene::Save() {
+    Save(StoragePath.c_str());
+}
+
+void Scene::Save(const char *path) {
     json data;
 
     // save scene id
-    data["ID"] = id;
+    data["id"] = ID;
     auto drawableData = json::array();
 
     // save drawables
-    for(const auto drawable : drawableList) {
+    for(const auto drawable : DrawableList) {
         if(const auto* ptr = dynamic_cast<Model*>(drawable)) {
             json model = {
-                {"ID",ptr->ID.c_str()},
+                {"id",ptr->ID.c_str()},
                 {"path",ptr->filePath.c_str()},
                 {"type","model"},
                 {"material",FileUtils::CreateJsonFromMaterial(ptr->Mat)},
@@ -92,7 +98,7 @@ void Scene::Save() {
             drawableData.push_back(model);
         }else if(const auto* ptr = dynamic_cast<Quad*>(drawable)) {
             json quad = {
-                {"ID",ptr->ID.c_str()},
+                {"id",ptr->ID.c_str()},
                 {"type","Quad"},
                   {"material",FileUtils::CreateJsonFromMaterial(ptr->Mat)},
                 {"position",FileUtils::CreateJsonArrayFromVec3(ptr->Position)},
@@ -106,26 +112,25 @@ void Scene::Save() {
 
     // save camera
     json camData = {
-        {"ID",camera.ID},
-        {"position",json::array({camera.Position[0],camera.Position[1],camera.Position[2]})},
-        {"pitch",camera.Pitch},
-          {"yaw",camera.Yaw},
-        {"zoom",camera.Zoom},
-        {"sensitivity",camera.MouseSensitivity},
-        {"speed",camera.MovementSpeed}
+        {"id",MainCamera.ID},
+        {"position",json::array({MainCamera.Position[0],MainCamera.Position[1],MainCamera.Position[2]})},
+        {"pitch",MainCamera.Pitch},
+          {"yaw",MainCamera.Yaw},
+        {"zoom",MainCamera.Zoom},
+        {"sensitivity",MainCamera.MouseSensitivity},
+        {"speed",MainCamera.MovementSpeed}
     };
     data["Camera"] = camData;
 
     // save light
     json lightData;
     lightData["SunLight"] = {
-        {"ID",sunLight.ID.c_str()},
         {"type","directional"},
-        {"direction",FileUtils::CreateJsonArrayFromVec3(sunLight.direction)},
-        {"color",FileUtils::CreateJsonArrayFromVec3(sunLight.lightColor)},
-        {"intensity",sunLight.intensity}
+        {"direction",FileUtils::CreateJsonArrayFromVec3(Sunlight.direction)},
+        {"color",FileUtils::CreateJsonArrayFromVec3(Sunlight.lightColor)},
+        {"intensity",Sunlight.intensity}
     };
     data["Light"] = lightData;
-    FileUtils::DumpJsonFile(data,filePath.c_str());
-    std::cout << "Scene [" << data["ID"] << "] saved in path : "  << filePath << std::endl;
+    FileUtils::DumpJsonFile(data,path);
+    std::cout << "Scene [" << ID << "] saved in path : "  << path << std::endl;
 }

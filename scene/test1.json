@@ -1,0 +1,86 @@
+{
+  "Camera": {
+    "id": "MainCamera",
+    "pitch": -22.0,
+    "position": [
+      2.300485849380493,
+      3.136218309402466,
+      2.650770902633667
+    ],
+    "sensitivity": 0.10000000149011612,
+    "speed": 1.0,
+    "yaw": -125.30008697509766,
+    "zoom": 45.0
+  },
+  "Light": {
+    "SunLight": {
+      "color": [
+        0.5,
+        0.800000011920929,
+        0.4000000059604645
+      ],
+      "direction": [
+        113.68399810791016,
+        51.42900085449219,
+        0.0
+      ],
+      "intensity": 0.30000001192092896,
+      "type": "directional"
+    }
+  },
+  "Models": [
+    {
+      "id": "Floor",
+      "material": {
+        "ambient": 0.30000001192092896,
+        "color": [
+          0.4000000059604645,
+          0.10000000149011612,
+          0.4000000059604645
+        ],
+        "type": "BlinnPhong_Pure"
+      },
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        90.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        10.0,
+        1.0,
+        10.0
+      ],
+      "type": "Quad"
+    },
+    {
+      "id": "Marry",
+      "material": {
+        "ambient": 0.30000001192092896,
+        "type": "BlinnPhong"
+      },
+      "path": "../resources/models/Marry/Marry.obj",
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "type": "model"
+    }
+  ],
+  "id": "Marry"
+}

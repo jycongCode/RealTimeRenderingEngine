@@ -20,7 +20,7 @@ public:
         filePath = path;
     }
     Model(){};
-    void draw(Shader shader) override;
+    void draw(Shader *shader) override;
     void loadModel(std::string path);
     void destroy() override;
 private:

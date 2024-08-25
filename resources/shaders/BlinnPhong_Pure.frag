@@ -30,6 +30,7 @@ layout(std140,binding=2) uniform Lights{
 
 // set by material
 uniform float ambient;
+uniform vec3 color;
 
 vec3 CalcDirLight(vec3 lightDir,vec3 lightColor,float intensity){
     vec3 viewDir = normalize(cameraPos - fs_in.fragPos_wS);
@@ -53,11 +54,9 @@ vec3 CalcPointLight(vec3 lightPos,vec3 lightColor,float intensity){
 // set by drawable itself
 uniform sampler2D diffuse1;
 void main(){
-    vec3 albedo = texture(diffuse1,fs_in.texCoord).rgb * ambient;
-    vec3 color = albedo;
-    color += CalcDirLight(-sunLight.direction,sunLight.color,sunLight.intensity);
-    FragColor = vec4(color,1.0);
+    vec3 albedo = color * ambient;
+    albedo += CalcDirLight(-sunLight.direction,sunLight.color,sunLight.intensity);
+    FragColor = vec4(albedo,1.0);
 }
-
 
 

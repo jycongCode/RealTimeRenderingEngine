@@ -14,11 +14,12 @@ void Model::destroy() {
     }
 }
 
-void Model::draw(Shader shader) {
-    for(int i = 0;i<meshes.size();++i) {
-        meshes[i].draw(shader);
+void Model::draw(Shader *shader) {
+    for(auto & mesh : meshes) {
+        mesh.draw(shader);
     }
 }
+
 
 void Model::loadModel(std::string filePath){
     Assimp::Importer importer;

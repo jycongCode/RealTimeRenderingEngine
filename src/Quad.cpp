@@ -2,6 +2,7 @@
 // Created by Lenovo on 2024/8/17.
 //
 
+#include <Shader.h>
 #include "Quad.h"
 float quadVertices[] = {
     // positions       //Normal           // tcd      //tangent
@@ -51,15 +52,15 @@ Quad::Quad(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale):Drawable(pos
     glBindVertexArray(0);
 }
 
-void Quad::draw(Shader shader) {
-    shader.setInt("diffuse1",0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,texture);
+void Quad::draw(Shader *shader) {
+    shader->use();
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES,0,6);
     glBindVertexArray(0);
 }
 
 void Quad::destroy() {
+    glDeleteVertexArrays(1,&VAO);
+    glDeleteBuffers(1,&VBO);
 
 }
