@@ -136,6 +136,11 @@ void InputComponent::Update(float deltaTime) {
             ImGui::SliderFloat3("Direction##SunLight",glm::value_ptr(sunLight.direction),-360.0f,360.0f);
             ImGui::ColorEdit3("Color##SunLight",glm::value_ptr(sunLight.lightColor));
             ImGui::SliderFloat("Intensity##SunLight",&(sunLight.intensity),0.0f,10.0f);
+            ImGui::SliderFloat("Right##SunLight",&(sunLight.right),0.0f,100.0f);
+            ImGui::SliderFloat("Top##SunLight",&(sunLight.top),0.0f,100.0f);
+            ImGui::SliderFloat("Near##SunLight",&(sunLight.nearp),0.0f,100.0f);
+            ImGui::SliderFloat("Far##SunLight",&(sunLight.farp),0.0f,1000.0f);
+            ImGui::SliderFloat("Distance##SunLight",&(sunLight.dis),0.0f,100.0f);
         }
         if(ImGui::CollapsingHeader("Camera")) {
             ImGui::SeparatorText(camera->ID.c_str());

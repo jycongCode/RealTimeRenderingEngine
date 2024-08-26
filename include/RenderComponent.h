@@ -26,6 +26,8 @@ private:
     void LoadAndCompileShaders(const char* file);
     void SetUpUBOData();
     void GenerateShadowMap();
+    void DrawDrawable();
+    void DebugDraw(GLuint tex);
 };
 
 

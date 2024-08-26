@@ -6,7 +6,7 @@
 #include <glad/glad.h>
 
 void Mesh::draw(Shader* shader) {
-    int idx = 0;
+    int idx = 1;
     for(auto texture : textures) {
         if(texture.type == static_cast<unsigned int>(aiTextureType_DIFFUSE)) {
             shader->setInt("diffuse1",idx);

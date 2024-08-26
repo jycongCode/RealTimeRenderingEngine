@@ -15,6 +15,7 @@ struct PointLight{
 
 in VS_OUT{
     vec3 fragPos_wS;
+    vec4 fragPos_lS;
     mat3 TBN;
     vec3 normal_wS;
     vec2 texCoord;
@@ -31,6 +32,7 @@ layout(std140,binding=2) uniform Lights{
 // set by material
 uniform float ambient;
 uniform vec3 color;
+uniform sampler2D shadowMap;
 
 vec3 CalcDirLight(vec3 lightDir,vec3 lightColor,float intensity){
     vec3 viewDir = normalize(cameraPos - fs_in.fragPos_wS);
@@ -51,12 +53,19 @@ vec3 CalcPointLight(vec3 lightPos,vec3 lightColor,float intensity){
     return (specular + diffuse) * lightColor * intensity * decay;
 }
 
-// set by drawable itself
-uniform sampler2D diffuse1;
+float CalcVisibility(vec4 lightSpacePos){
+    vec3 projCoord = lightSpacePos.xyz / lightSpacePos.w;
+    projCoord = projCoord * 0.5 + 0.5;
+    float blockerDepth = texture(shadowMap,projCoord.xy).r;
+    return blockerDepth < projCoord.z-0.001 ? 0.0 : 1.0;
+}
+
 void main(){
-    vec3 albedo = color * ambient;
-    albedo += CalcDirLight(-sunLight.direction,sunLight.color,sunLight.intensity);
-    FragColor = vec4(albedo,1.0);
+    // ambient light
+    vec3 indirectLight = color * ambient;
+    vec3 directLight = CalcDirLight(-sunLight.direction,sunLight.color,sunLight.intensity);
+    float visibility = CalcVisibility(fs_in.fragPos_lS);
+    FragColor = vec4((indirectLight + directLight * visibility) * color,1.0);
 }
 
 

@@ -7,15 +7,16 @@
 #include <dirent.h>
 #include "DisplayComponent.h"
 #include "Material.h"
+#include "Quad.h"
 
 const char* shaderDir = "../resources/shaders";
-const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+const unsigned int SHADOW_WIDTH = 1920, SHADOW_HEIGHT = 1080;
 
 void RenderComponent::SetUp(RTREngine* engine) {
      Component::SetUp(engine);
      glGenBuffers(1,&MatricesUBO);
      glBindBuffer(GL_UNIFORM_BUFFER,MatricesUBO);
-     glBufferData(GL_UNIFORM_BUFFER,128,nullptr,GL_STATIC_DRAW);
+     glBufferData(GL_UNIFORM_BUFFER,64 * 3,nullptr,GL_STATIC_DRAW);
      glBindBufferBase(GL_UNIFORM_BUFFER,0,MatricesUBO);
 
      glGenBuffers(1,&LightUBO);
@@ -49,11 +50,16 @@ void RenderComponent::SetUp(RTREngine* engine) {
 
 void RenderComponent::SetUpUBOData() {
      const auto* sceneComponent = engine->sceneComponent;
+     Camera& cam = engine->sceneComponent->Current->MainCamera;
+     DirLight& sunLight = engine->sceneComponent->Current->Sunlight;
      glBindBuffer(GL_UNIFORM_BUFFER,MatricesUBO);
      glm::mat4 projection = sceneComponent->Current->GetProjectionMatrix();
      glBufferSubData(GL_UNIFORM_BUFFER,0,sizeof(glm::mat4),glm::value_ptr(projection));
      glm::mat4 view = sceneComponent->Current->GetViewMatrix();
      glBufferSubData(GL_UNIFORM_BUFFER,sizeof(glm::mat4),sizeof(glm::mat4),glm::value_ptr(view));
+     glm::vec3 center = cam.Position + cam.Front * (cam.nearPlane + cam.farPlane) / 2.0f;
+     glm::mat4 lightMatrix = sunLight.GetLightMatrix(center,cam.nearPlane,cam.farPlane);
+     glBufferSubData(GL_UNIFORM_BUFFER,2 * sizeof(glm::mat4),sizeof(glm::mat4),glm::value_ptr(lightMatrix));
      glBindBuffer(GL_UNIFORM_BUFFER,0);
 
      glBindBuffer(GL_UNIFORM_BUFFER,LightUBO);
@@ -72,14 +78,41 @@ void RenderComponent::GenerateShadowMap() {
      glBindFramebuffer(GL_FRAMEBUFFER,ShadowMapFBO);
      glClear(GL_DEPTH_BUFFER_BIT);
      Shader* shader = shaderLib["ShadowMap"];
-     RenderScene();
+     shader->use();
+     shader->setMat4("lightMatrix",engine->sceneComponent->Current->Sunlight.GetLightMatrix(glm::vec3(0.0f),0.0f,0.0f));
+     for(const auto drawable : engine->sceneComponent->Current->DrawableList) {
+          shader->setMat4("model",drawable->GetModelMatrix());
+          drawable->draw(shader);
+     }
      glBindFramebuffer(GL_FRAMEBUFFER, 0);
      // 2. then render scene as normal with shadow mapping (using depth map)
-     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+     glViewport(0, 0, engine->displayComponent->ScrWidth, engine->displayComponent->ScrHeight);
      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-     ConfigureShaderAndMatrices();
-     glBindTexture(GL_TEXTURE_2D, depthMap);
-     RenderScene();
+}
+
+void RenderComponent::DrawDrawable() {
+     for(const auto drawable : engine->sceneComponent->Current->DrawableList) {
+          std::string shaderName = drawable->Mat->shaderName;
+          Shader* shader = shaderLib[shaderName];
+          shader->use();
+          shader->setMat4("lightMatrix",engine->sceneComponent->Current->Sunlight.GetLightMatrix(glm::vec3(0.0f),0.0f,0.0f));
+          shader->setInt("shadowMap",0);
+          glActiveTexture(GL_TEXTURE0);
+          glBindTexture(GL_TEXTURE_2D,ShadowMap);
+          shader->setMat4("model",drawable->GetModelMatrix());
+          drawable->Mat->Render(shader);
+          drawable->draw(shader);
+     }
+}
+
+void RenderComponent::DebugDraw(GLuint tex) {
+     Quad*q = new Quad();
+     Shader* shader = shaderLib["DebugDraw"];
+     shader->use();
+     shader->setInt("debugTex",0);
+     glActiveTexture(GL_TEXTURE0);
+     glBindTexture(GL_TEXTURE_2D,tex);
+     q->draw(shader);
 }
 
 void RenderComponent::Update(float deltaTime) {
@@ -89,20 +122,17 @@ void RenderComponent::Update(float deltaTime) {
      //TODO: draw skybox
      glEnable(GL_DEPTH_TEST);
      //draw loop
-     for(const auto drawable : sceneComponent->Current->DrawableList) {
-          std::string shaderName = drawable->Mat->shaderName;
-          Shader* shader = shaderLib[shaderName];
-          shader->use();
-          shader->setMat4("model",drawable->GetModelMatrix());
-          drawable->Mat->Render(shader);
-          drawable->draw(shader);
-     }
+     GenerateShadowMap();
+     DrawDrawable();
+     // DebugDraw(ShadowMap);
 }
 
 void RenderComponent::Destroy() {
      glDeleteBuffers(1,&MatricesUBO);
      glDeleteBuffers(1,&LightUBO);
      glDeleteBuffers(1,&CameraUBO);
+     glDeleteBuffers(1,&ShadowMapFBO);
+     glDeleteTextures(1,&ShadowMap);
      MatricesUBO = 0,LightUBO = 0,CameraUBO = 0;
 }
 

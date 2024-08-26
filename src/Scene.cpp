@@ -68,6 +68,11 @@ void Scene::Load(const char *path) {
     Sunlight.direction = FileUtils::GetVec3FromJson(lightData["SunLight"],"direction");
     Sunlight.lightColor = FileUtils::GetVec3FromJson(lightData["SunLight"],"color");
     Sunlight.intensity = lightData["SunLight"]["intensity"];
+    Sunlight.right = lightData["SunLight"]["right"];
+    Sunlight.top = lightData["SunLight"]["top"];
+    Sunlight.nearp = lightData["SunLight"]["nearp"];
+    Sunlight.farp = lightData["SunLight"]["farp"];
+    Sunlight.dis = lightData["SunLight"]["dis"];
 
     std::cout << "Scene [" << ID << "] loaded from path : "  << StoragePath << std::endl;
 }
@@ -128,7 +133,12 @@ void Scene::Save(const char *path) {
         {"type","directional"},
         {"direction",FileUtils::CreateJsonArrayFromVec3(Sunlight.direction)},
         {"color",FileUtils::CreateJsonArrayFromVec3(Sunlight.lightColor)},
-        {"intensity",Sunlight.intensity}
+        {"intensity",Sunlight.intensity},
+        {"right",Sunlight.right},
+        {"top",Sunlight.top},
+        {"nearp",Sunlight.nearp},
+        {"farp",Sunlight.farp},
+        {"dis",Sunlight.dis}
     };
     data["Light"] = lightData;
     FileUtils::DumpJsonFile(data,path);

@@ -9,6 +9,7 @@ layout (std140,binding=0) uniform Matrices
 {
     mat4 projection;
     mat4 view;
+    mat4 lightMatrix;
 };
 
 // temporariliy set in render loop
@@ -17,6 +18,7 @@ uniform mat4 model;
 
 out VS_OUT{
     vec3 fragPos_wS;
+    vec4 fragPos_lS;
     mat3 TBN;
     vec3 normal_wS;
     vec2 texCoord;
@@ -41,4 +43,5 @@ void main(){
     vs_out.TBN = mat3(T, B, N);
 
     vs_out.normal_wS = mat3(transpose(inverse(model))) * normal_mS;
+    vs_out.fragPos_lS = lightMatrix * model * vec4(vertexPos_mS,1.0);
 }

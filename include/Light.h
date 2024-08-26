@@ -24,10 +24,15 @@ public:
         direction(dir),LightBase(color,intensity) {
         ID = id;
     }
-
+    float right = 10.0f;
+    float top = 10.0f;
+    float nearp = 0.1f;
+    float farp = 100.0f;
+    float dis = 10.0f;
     glm::vec3 GetDirVec3();
     DirLight() = default;
     std::string GetTypeName() override;
+    glm::mat4 GetLightMatrix(glm::vec3 center,float nearPlane,float farPlane);
     glm::vec3 direction;
 };
 

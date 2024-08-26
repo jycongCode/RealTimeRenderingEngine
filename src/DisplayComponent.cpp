@@ -79,6 +79,8 @@ void DisplayComponent::SetUp(RTREngine *engine) {
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
+    GLuint t;
+    glGenBuffers(1,&t);
     GLint flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
