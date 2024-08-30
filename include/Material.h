@@ -15,8 +15,8 @@ public:
 
 class MBlinnPhong:public Material{
 public:
-    MBlinnPhong(float ambient):ambient(ambient) {
-        shaderName = "BlinnPhong";
+    MBlinnPhong(float ambient,const char* shader):ambient(ambient) {
+        shaderName = shader;
     }
     float ambient;
     std::string GetType() override {
@@ -31,12 +31,12 @@ public:
 
 class MBlinnPhong_Pure:public Material {
 public:
-    MBlinnPhong_Pure(float r,float g,float b,float ambient):ambient(ambient) {
+    MBlinnPhong_Pure(float r,float g,float b,float ambient,const char* shader):ambient(ambient) {
         color = {r,g,b};
-        shaderName = "BlinnPhong_Pure";
+        shaderName = shader;
     }
-    MBlinnPhong_Pure(glm::vec3 color,float ambient):color(color),ambient(ambient) {
-        shaderName = "BlinnPhong_Pure";
+    MBlinnPhong_Pure(glm::vec3 color,float ambient,const char* shader):color(color),ambient(ambient) {
+        shaderName = shader;
     }
     std::string GetType() override {
         return "BlinnPhong_Pure";

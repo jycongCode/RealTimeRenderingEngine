@@ -91,15 +91,21 @@ void RenderComponent::GenerateShadowMap() {
 }
 
 void RenderComponent::DrawDrawable() {
+     DirLight& sunLight = engine->sceneComponent->Current->Sunlight;
      for(const auto drawable : engine->sceneComponent->Current->DrawableList) {
           std::string shaderName = drawable->Mat->shaderName;
           Shader* shader = shaderLib[shaderName];
           shader->use();
           shader->setMat4("lightMatrix",engine->sceneComponent->Current->Sunlight.GetLightMatrix(glm::vec3(0.0f),0.0f,0.0f));
+
+          shader->setFloat("biasMin",sunLight.biasMin);
+          shader->setFloat("biasMax",sunLight.biasMax);
+
           shader->setInt("shadowMap",0);
           glActiveTexture(GL_TEXTURE0);
           glBindTexture(GL_TEXTURE_2D,ShadowMap);
           shader->setMat4("model",drawable->GetModelMatrix());
+
           drawable->Mat->Render(shader);
           drawable->draw(shader);
      }
@@ -121,10 +127,15 @@ void RenderComponent::Update(float deltaTime) {
      glViewport(0,0,engine->displayComponent->ScrWidth,engine->displayComponent->ScrHeight);
      //TODO: draw skybox
      glEnable(GL_DEPTH_TEST);
+     glEnable(GL_CULL_FACE);
+     glCullFace(GL_BACK);
      //draw loop
      GenerateShadowMap();
-     DrawDrawable();
-     // DebugDraw(ShadowMap);
+     if(DebugMode) {
+          DebugDraw(ShadowMap);
+     }else {
+          DrawDrawable();
+     }
 }
 
 void RenderComponent::Destroy() {

@@ -54,9 +54,11 @@ Quad::Quad(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale):Drawable(pos
 
 void Quad::draw(Shader *shader) {
     shader->use();
+    glDisable(GL_CULL_FACE);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES,0,6);
     glBindVertexArray(0);
+    glEnable(GL_CULL_FACE);
 }
 
 void Quad::destroy() {

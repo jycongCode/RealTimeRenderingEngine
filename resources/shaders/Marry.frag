@@ -59,6 +59,7 @@ vec3 CalcPointLight(vec3 lightPos,vec3 lightColor,float intensity){
 float CalcVisibility(vec4 lightSpacePos,vec3 normal,vec3 lightDir){
     vec3 projCoord = lightSpacePos.xyz / lightSpacePos.w;
     projCoord = projCoord * 0.5 + 0.5;
+    if(projCoord.x < 0.0 || projCoord.x > 1.0 || projCoord.y < 0.0 || projCoord.y > 1.0)return 1.0;
     float blockerDepth = texture(shadowMap,projCoord.xy).r;
     float bias = max(biasMax * (1.0 - dot(normal, lightDir)), biasMin);
     return blockerDepth < projCoord.z-bias ? 0.0 : 1.0;
@@ -66,11 +67,11 @@ float CalcVisibility(vec4 lightSpacePos,vec3 normal,vec3 lightDir){
 
 void main(){
     // ambient light
-    vec3 color = texture(diffuse1,fs_in.texCoord).rgb;
+    vec3 color = pow(texture(diffuse1,fs_in.texCoord).rgb,vec3(2.2));
     vec3 indirectLight = texture(diffuse1,fs_in.texCoord).rgb * ambient;
     vec3 directLight = CalcDirLight(-sunLight.direction,sunLight.color,sunLight.intensity);
-    float visibility = CalcVisibility(fs_in.fragPos_lS,fs_in.normal_wS,-sunLight.direction);
-    FragColor = vec4((indirectLight + directLight * visibility) * color ,1.0);
+    float visibility = 1.0;
+    FragColor = vec4(pow((indirectLight + directLight * visibility) * color,vec3(1.0/2.2)) ,1.0);
 }
 
 

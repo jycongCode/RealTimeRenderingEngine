@@ -15,6 +15,8 @@ public:
     GLuint CameraUBO = 0;
     GLuint ShadowMapFBO = 0;
     GLuint ShadowMap = 0;
+public:
+    bool DebugMode = false;
 private:
     std::unordered_map<std::string,Shader*> shaderLib;
 public:

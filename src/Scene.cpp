@@ -73,7 +73,8 @@ void Scene::Load(const char *path) {
     Sunlight.nearp = lightData["SunLight"]["nearp"];
     Sunlight.farp = lightData["SunLight"]["farp"];
     Sunlight.dis = lightData["SunLight"]["dis"];
-
+    Sunlight.biasMin = lightData["SunLight"]["biasMin"];
+    Sunlight.biasMax = lightData["SunLight"]["biasMax"];
     std::cout << "Scene [" << ID << "] loaded from path : "  << StoragePath << std::endl;
 }
 
@@ -138,7 +139,9 @@ void Scene::Save(const char *path) {
         {"top",Sunlight.top},
         {"nearp",Sunlight.nearp},
         {"farp",Sunlight.farp},
-        {"dis",Sunlight.dis}
+        {"dis",Sunlight.dis},
+        {"biasMin",Sunlight.biasMin},
+        {"biasMax",Sunlight.biasMax}
     };
     data["Light"] = lightData;
     FileUtils::DumpJsonFile(data,path);

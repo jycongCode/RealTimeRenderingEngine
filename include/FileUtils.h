@@ -43,10 +43,12 @@ namespace FileUtils {
 
     inline Material* GetMaterialFromJson(json mat) {
         if(mat["type"] == "BlinnPhong") {
-            return new MBlinnPhong(mat["ambient"]);
+            std::string shader = mat["shader"];
+            return new MBlinnPhong(mat["ambient"],shader.c_str());
         }else if(mat["type"] == "BlinnPhong_Pure") {
+            std::string shader = mat["shader"];
             auto color = GetVec3FromJson(mat,"color");
-            return new MBlinnPhong_Pure(color,mat["ambient"]);
+            return new MBlinnPhong_Pure(color,mat["ambient"],shader.c_str());
         }else {
             return nullptr;
         }
@@ -57,13 +59,16 @@ namespace FileUtils {
         if(MBlinnPhong* ptr = dynamic_cast<MBlinnPhong*>(mat)) {
             data = {
                { "type",ptr->GetType().c_str()},
-               {"ambient",ptr->ambient}
+               {"ambient",ptr->ambient},
+                {"shader",ptr->shaderName}
+
             };
         }else if(MBlinnPhong_Pure* ptr = dynamic_cast<MBlinnPhong_Pure*>(mat)) {
             data = {
                 { "type",ptr->GetType().c_str()},
                 {"ambient",ptr->ambient},
-                {"color",CreateJsonArrayFromVec3(ptr->color)}
+                {"color",CreateJsonArrayFromVec3(ptr->color)},
+                {"shader",ptr->shaderName}
             };
         }
         return data;

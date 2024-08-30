@@ -32,7 +32,10 @@ layout(std140,binding=2) uniform Lights{
 // set by material
 uniform float ambient;
 uniform vec3 color;
+
 uniform sampler2D shadowMap;
+uniform float biasMin;
+uniform float biasMax;
 
 vec3 CalcDirLight(vec3 lightDir,vec3 lightColor,float intensity){
     vec3 viewDir = normalize(cameraPos - fs_in.fragPos_wS);
@@ -53,18 +56,19 @@ vec3 CalcPointLight(vec3 lightPos,vec3 lightColor,float intensity){
     return (specular + diffuse) * lightColor * intensity * decay;
 }
 
-float CalcVisibility(vec4 lightSpacePos){
+float CalcVisibility(vec4 lightSpacePos,vec3 normal,vec3 lightDir){
     vec3 projCoord = lightSpacePos.xyz / lightSpacePos.w;
     projCoord = projCoord * 0.5 + 0.5;
     float blockerDepth = texture(shadowMap,projCoord.xy).r;
-    return blockerDepth < projCoord.z-0.001 ? 0.0 : 1.0;
+    float bias = max(biasMax * (1.0 - dot(normal, lightDir)), biasMin);
+    return blockerDepth < projCoord.z-bias ? 0.0 : 1.0;
 }
 
 void main(){
     // ambient light
     vec3 indirectLight = color * ambient;
     vec3 directLight = CalcDirLight(-sunLight.direction,sunLight.color,sunLight.intensity);
-    float visibility = CalcVisibility(fs_in.fragPos_lS);
+    float visibility = CalcVisibility(fs_in.fragPos_lS,fs_in.normal_wS,-sunLight.direction);
     FragColor = vec4((indirectLight + directLight * visibility) * color,1.0);
 }
 

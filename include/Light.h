@@ -29,6 +29,8 @@ public:
     float nearp = 0.1f;
     float farp = 100.0f;
     float dis = 10.0f;
+    float biasMin = 0.005f;
+    float biasMax = 0.05f;
     glm::vec3 GetDirVec3();
     DirLight() = default;
     std::string GetTypeName() override;

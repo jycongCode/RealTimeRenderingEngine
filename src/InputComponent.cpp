@@ -6,6 +6,7 @@
 #include "InputComponent.h"
 
 #include "Material.h"
+#include "RenderComponent.h"
 #include "RTREngine.h"
 #include "Scene.h"
 #include "imgui/imgui.h"
@@ -141,6 +142,8 @@ void InputComponent::Update(float deltaTime) {
             ImGui::SliderFloat("Near##SunLight",&(sunLight.nearp),0.0f,100.0f);
             ImGui::SliderFloat("Far##SunLight",&(sunLight.farp),0.0f,1000.0f);
             ImGui::SliderFloat("Distance##SunLight",&(sunLight.dis),0.0f,100.0f);
+            ImGui::DragFloat("biasMin##SunLight",&(sunLight.biasMin),0.001,0.0f,0.01f);
+            ImGui::DragFloat("biasMax##SunLight",&(sunLight.biasMax),0.001f,0.0f,0.1f);
         }
         if(ImGui::CollapsingHeader("Camera")) {
             ImGui::SeparatorText(camera->ID.c_str());
@@ -155,6 +158,9 @@ void InputComponent::Update(float deltaTime) {
         if(ImGui::Button("Save File")) {
             engine->sceneComponent->Current->Save();
         }
+        ImGui::SeparatorText("Draw Mode");
+        ImGui::Checkbox("DebugMode",&(engine->renderComponent->DebugMode));
+
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
